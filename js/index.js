@@ -1,9 +1,9 @@
 let sceneHeight, sceneWidth;
 let camera, scene, renderer;
+let orbitControls;
 let dom;
 let cube;
-let sun;
-var clock = new THREE.Clock();
+let stats;
 
 init();
 
@@ -114,14 +114,25 @@ function createScene(){
 	// let axes = new THREE.AxesHelper(100);
 	// scene.add(axes);
 
+	// enables you to visualize the grid
+	// let size = 100;
+	// let divisions = 100;
+	// let gridHelper = new THREE.GridHelper(size, divisions);
+	// gridHelper.position.y = -1.0;
+	// scene.add(gridHelper);
+
+	// add these back in after you add orbit controls
+	orbitControls = new THREE.OrbitControls(camera, renderer.domElement);//helper to rotate around in scene
+	orbitControls.addEventListener('change', render);
+	orbitControls.enableZoom = true;
+
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
 }
 
 function animate() {
-	
 	// animates the cube
-	cube.rotation.y += 0.01;
+	// cube.rotation.y += 0.01;
 	requestAnimationFrame(animate);
 	render();
 	update();
@@ -132,21 +143,20 @@ function render() {
 }
 
 function update() {
-	document.addEventListener("keypress", onKeypress, false);
 
-	let moveDistance = 50 * clock.getDelta();
-}
+	document.addEventListener("keyup", function(e) {
+		let xSpeed = 0.01;
+		let ySpeed = 0.01;
+		let zSpeed = -0.01;
 
-function onKeypress() {
-	if (keyboard.down("left")) {
-		console.log("moving left");
-		// cube.translateX(-50);
-	}
-
-	if (keyboard.down("right")) {
-		console.log("moving right");
-		//cube.translateX(50);
-	}
+		if (e.keyCode === 38) { //up arrow key
+			console.log("pressed the up key!");
+			 cube.position.z += zSpeed;
+			// cube.translateZ(0.01); //right
+			//cube.translateX(-50); //left
+		}
+	}, false);
+	render();
 }
 
 function onWindowResize() {

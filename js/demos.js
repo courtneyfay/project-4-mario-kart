@@ -105,6 +105,7 @@ renderer.render( scene, camera );*/
 ///// 3D ENDLESS RUNNER DEMO /////
 //////////////////////////////////
 
+/*
 var sceneWidth;
 var sceneHeight;
 var camera;
@@ -195,4 +196,51 @@ function onWindowResize() {
 	renderer.setSize(sceneWidth, sceneHeight);
 	camera.aspect = sceneWidth/sceneHeight;
 	camera.updateProjectionMatrix();
-}
+}*/
+
+//////////////////////////////////////
+///// PHYSIJS ENGINE FOR THREEJS /////
+//////////////////////////////////////
+
+// 'use strict';
+	
+	// let Physijs = './js/physijs_worker';
+	Physijs.scripts.worker = '../js/controls/physijs_worker.js';
+	Physijs.scripts.ammo = 'ammo.js';
+	
+	var initScene, render, renderer, scene, camera, box;
+	
+	initScene = function() {
+		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		document.getElementById( 'MarioKart' ).appendChild( renderer.domElement );
+		
+		scene = new Physijs.Scene;
+		
+		camera = new THREE.PerspectiveCamera(
+			35,
+			window.innerWidth / window.innerHeight,
+			1,
+			1000
+		);
+		camera.position.set( 60, 50, 60 );
+		camera.lookAt( scene.position );
+		scene.add( camera );
+		
+		// Box
+		box = new Physijs.BoxMesh(
+			new THREE.CubeGeometry( 5, 5, 5 ),
+			new THREE.MeshBasicMaterial({ color: 0x888888 })
+		);
+		scene.add( box );
+		
+		requestAnimationFrame( render );
+	};
+	
+	render = function() {
+		scene.simulate(); // run physics
+		renderer.render( scene, camera); // render the scene
+		requestAnimationFrame( render );
+	};
+	
+	window.onload = initScene();
