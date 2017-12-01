@@ -205,7 +205,7 @@ function onWindowResize() {
 // 'use strict';
 	
 	// let Physijs = './js/physijs_worker';
-	Physijs.scripts.worker = '../js/controls/physijs_worker.js';
+	Physijs.scripts.worker = '../scripts/controls/physijs_worker.js';
 	Physijs.scripts.ammo = 'ammo.js';
 	
 	var initScene, render, renderer, scene, camera, box;
