@@ -81,7 +81,7 @@ function createScene(){
 	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
 	let grassMaterial = Physijs.createMaterial(
 		new THREE.MeshStandardMaterial({color: 'green'}),
-		0.8, // high friction
+		0.9, // high friction
 		0.2  // low restitution
 	);
 	let grass = new Physijs.BoxMesh(
@@ -100,7 +100,7 @@ function createScene(){
 	let racetrackGeometry = new THREE.PlaneGeometry(racetrackWidth, racetrackHeight);
 	let racetrackMaterial = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({color: 0x576259}), //asphalt grey
-		0.8,  // high friction
+		0.5,  // medium friction
 		0.4		// low restitution
 	);
 	let racetrack = new Physijs.BoxMesh(
@@ -114,14 +114,47 @@ function createScene(){
 	racetrack.position.y = -1;
 	scene.add(racetrack);
 
-	// creates starting line and adds to scene
-	// let startingLineMaterial = new THREE.LineBasicMaterial({color: 0xffffff}); // white starting line
-	// let startingLineGeometry = new THREE.Geometry();
-	// 	startingLineGeometry.vertices.push(new THREE.Vector3(-1.7, 0, 0)); // x y z
-	// 	startingLineGeometry.vertices.push(new THREE.Vector3(1.7, 0, 0)); // x y z
-	// let startingLine = new THREE.LineSegments(startingLineGeometry, startingLineMaterial);
-	// startingLine.position.y = 0.4;
-	// scene.add(startingLine);
+	// creates startingLine plane and adds to scene
+	let startingLineWidth = 11;
+	let startingLineHeight = 3;
+	let startingLineGeometry = new THREE.PlaneGeometry(startingLineWidth, startingLineHeight);
+	let startingLineMaterial = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({color: 0xffffff}), // white
+		0.8,  // high friction
+		0.4		// low restitution
+	);
+	let startingLine = new Physijs.BoxMesh(
+		startingLineGeometry, 
+		startingLineMaterial,
+		0  // mass
+	);
+	startingLine.receiveShadow = true;
+	startingLine.castShadow = false;
+	startingLine.rotation.x = -Math.PI / 2;
+	startingLine.position.y = -0.99;
+	startingLine.position.z = -5;
+	scene.add(startingLine);
+
+	// creates finishLine plane and adds to scene
+	let finishLineWidth = 11;
+	let finishLineHeight = 3;
+	let finishLineGeometry = new THREE.PlaneGeometry(finishLineWidth, finishLineHeight);
+	let finishLineMaterial = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({color: 0xffffff}), // white
+		0.8,  // high friction
+		0.4		// low restitution
+	);
+	let finishLine = new Physijs.BoxMesh(
+		finishLineGeometry, 
+		finishLineMaterial,
+		0  // mass
+	);
+	finishLine.receiveShadow = true;
+	finishLine.castShadow = false;
+	finishLine.rotation.x = -Math.PI / 2;
+	finishLine.position.y = -0.99;
+	finishLine.position.z = -250;
+	scene.add(finishLine);
 
 	// creates racecube and adds to scene
 	let cubeGeometry = new THREE.BoxGeometry(1,1,1);
@@ -133,7 +166,7 @@ function createScene(){
 	cube = new Physijs.BoxMesh(
 		cubeGeometry, 
 		cubeMaterial,
-		1000  // mass
+		1500  // mass
 	);
 	cube.castShadow = true;
 	cube.receiveShadow = true;
@@ -159,8 +192,9 @@ function createScene(){
 	// create objects to be added to the scene at later intervals
 	
 	// countdown ball
+	// starts invisible
 	var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	var ballMaterial = new THREE.MeshLambertMaterial({color: 0x000000, transparent: true, opacity: 0.75}); // starts at black
+	var ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
 	var countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
 	countdownBall.castShadow = true;
 	countdownBall.receiveShadow = true;
@@ -184,14 +218,14 @@ function render() {
 }
 
 function update() {
-	countdownBall = scene.children[5];
+	countdownBall = scene.children[7];
 	currentTime = countdownClock.getElapsedTime();
 
-	// wait for 4 seconds after game loads to start countdown clock
-	if (currentTime >= 4 && currentTime < 10) {
-		// stoplight appears as a black ball on the screen
+	if (currentTime >= 4 && currentTime < 10.025) {
+		// wait for 4 seconds after game loads to make countdown ball appear
 		countdownBall.material.color.setHex(0x000000);
-		
+		countdownBall.material.opacity = 0.75; 
+
 		if (currentTime >= 7 && currentTime < 8) {
 			//stoplight starts at red
 			countdownBall.material.color.setHex(0xff0000); 
@@ -201,16 +235,32 @@ function update() {
 		} else if (currentTime >= 9 && currentTime < 10) {
 			//stoplight ends at green
 			countdownBall.material.color.setHex(0x00ff00); 
-		} 
-	} else if (currentTime > 10) {
+		} else if (currentTime >=10 && currentTime < 10.025) {
+			console.log("trying to remove countdownBall again");
+			scene.remove(countdownBall);
+		}
+	} else if (currentTime >= 10.025) {
 		// after the countdown timer ends, you can start to move with the arrow keys
-		scene.remove(countdownBall);
 		onKeydown();
 	}
 
-
+	finishLineCheck();
 	render();
 	scene.simulate();
+}
+
+function finishLineCheck() {
+	/*for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
+	{		
+		var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
+		var globalVertex = localVertex.applyMatrix4( MovingCube.matrix );
+		var directionVector = globalVertex.sub( MovingCube.position );
+		
+		var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+		var collisionResults = ray.intersectObjects( collidableMeshList );
+		if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
+			appendText(" Hit ");
+	}	*/
 }
 
 function onKeydown() {
@@ -246,6 +296,18 @@ function onWindowResize() {
 ///////////////////////////////
 ////////// GRAVEYARD //////////
 ///////////////////////////////
+
+/*
+// creates starting line and adds to scene
+let startingLineMaterial = new THREE.LineBasicMaterial({color: 0xffffff}); // white starting line
+let startingLineGeometry = new THREE.Geometry();
+	startingLineGeometry.vertices.push(new THREE.Vector3(-5.5, 0, 0)); // x y z
+	startingLineGeometry.vertices.push(new THREE.Vector3(5.5, 0, 0)); // x y z
+let startingLine = new THREE.LineSegments(startingLineGeometry, startingLineMaterial);
+startingLine.position.z = -5;
+startingLine.position.y = -1;
+scene.add(startingLine);
+*/
 
 // let materialFront = new THREE.MeshBasicMaterial({color: 0xff0000});
 	// let materialSide = new THREE.MeshBasicMaterial({color: 0x000088});
