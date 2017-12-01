@@ -4,21 +4,19 @@ Physijs.scripts.worker = '../scripts/controls/physijs_worker.js'; //path relativ
 Physijs.scripts.ammo = 'ammo.js'; //path relative to physijs_worker
 
 let sceneHeight, sceneWidth;
-let camera, scene, renderer;
+let camera;
+let scene;
+let renderer;
 let orbitControls;
 let cube;
-let clock;
+let countdownBall;
+let countdownClock;
+let fontLoader = new THREE.FontLoader();
 
-init();
-
-function init() {
-	
-	// sets up the scene, camera, renderer and 3D objects
-	createScene();
-
-	// calls game loop/animations
-	animate();
-}
+// sets up the scene, camera, renderer and 3D objects
+createScene();
+// calls game loop/animations
+animate();
 
 function createScene(){
 	// sets the renderer
@@ -138,10 +136,10 @@ function createScene(){
 		1000  // mass
 	);
 	cube.castShadow = true;
-	cube.receiveShadow = false;
+	cube.receiveShadow = true;
 	cube.position.y = -0.5;
 	scene.add(cube);
-	cube.add(camera);
+	// cube.add(camera);
 
 	// enables you to visualize the x y and z axes
 	// let axesHelper = new THREE.AxesHelper(100);
@@ -155,35 +153,21 @@ function createScene(){
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	//orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
-	//orbitControls.enableZoom = true;
+	orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
+	orbitControls.enableZoom = true;
 
 	// create objects to be added to the scene at later intervals
-	/*
-	/ add 3D text
-	var materialFront = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-	var materialSide = new THREE.MeshBasicMaterial( { color: 0x000088 } );
-	var materialArray = [ materialFront, materialSide ];
-	var textGeom = new THREE.TextGeometry( "Hello, World!", 
-	{
-		size: 30, height: 4, curveSegments: 3,
-		font: "helvetiker", weight: "bold", style: "normal",
-		bevelThickness: 1, bevelSize: 2, bevelEnabled: true,
-		material: 0, extrudeMaterial: 1
-	});
-	// font: helvetiker, gentilis, droid sans, droid serif, optimer
-	// weight: normal, bold
 	
-	var textMaterial = new THREE.MeshFaceMaterial(materialArray);
-	var textMesh = new THREE.Mesh(textGeom, textMaterial );
-	
-	textGeom.computeBoundingBox();
-	var textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
-	
-	textMesh.position.set( -0.5 * textWidth, 50, 100 );
-	textMesh.rotation.x = -Math.PI / 4;
-	scene.add(textMesh);
-	*/
+	// countdown ball
+	var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	var ballMaterial = new THREE.MeshLambertMaterial({color: 0x000000, transparent: true, opacity: 0.75}); // starts at black
+	var countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	countdownBall.castShadow = true;
+	countdownBall.receiveShadow = true;
+	countdownBall.position.y = 2;
+	countdownBall.position.x = 1;
+	countdownBall.position.z = 1;
+	scene.add(countdownBall);
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
@@ -200,21 +184,31 @@ function render() {
 }
 
 function update() {
+	countdownBall = scene.children[5];
 	currentTime = countdownClock.getElapsedTime();
 
-	// wait for 6 seconds after game loads to start countdown clock
-	if (currentTime >= 6) {
+	// wait for 4 seconds after game loads to start countdown clock
+	if (currentTime >= 4 && currentTime < 10) {
+		// stoplight appears as a black ball on the screen
+		countdownBall.material.color.setHex(0x000000);
+		
 		if (currentTime >= 7 && currentTime < 8) {
-			console.log('countdown begins: 3');
+			//stoplight starts at red
+			countdownBall.material.color.setHex(0xff0000); 
 		} else if (currentTime >= 8 && currentTime < 9) {
-			console.log(' -- 2 -- ');
+			//stoplight changes to yellow
+			countdownBall.material.color.setHex(0xffff00); 
 		} else if (currentTime >= 9 && currentTime < 10) {
-			console.log(' -- 1 -- ');
-		} else {
-			// after the countdown timer ends, you can start to move with the arrow keys
-			onKeydown();
-		}
+			//stoplight ends at green
+			countdownBall.material.color.setHex(0x00ff00); 
+		} 
+	} else if (currentTime > 10) {
+		// after the countdown timer ends, you can start to move with the arrow keys
+		scene.remove(countdownBall);
+		onKeydown();
 	}
+
+
 	render();
 	scene.simulate();
 }
@@ -252,6 +246,71 @@ function onWindowResize() {
 ///////////////////////////////
 ////////// GRAVEYARD //////////
 ///////////////////////////////
+
+// let materialFront = new THREE.MeshBasicMaterial({color: 0xff0000});
+	// let materialSide = new THREE.MeshBasicMaterial({color: 0x000088});
+	// let numberMaterial = [materialFront, materialSide];
+	// let numberMaterial = new THREE.MeshFaceMaterial(materialArray);
+	// let numberThreeGeometry = new THREE.TextGeometry(
+	// 	"3",
+	// 	{
+	// 		size: 30, 
+	// 		height: 4, 
+	// 		curveSegments: 3,
+	// 		font: "helvetiker", // or gentilis, droid sans, droid serif, optimer
+	// 		weight: "bold", // or normal
+	// 		style: "normal",
+	// 		bevelThickness: 1,
+	// 		bevelSize: 2, 
+	// 		bevelEnabled: true,
+	// 		material: 0,
+	// 		extrudeMaterial: 1
+	// 	}
+	// );
+
+	// let numberThree = new THREE.Mesh(numberThreeGeometry, numberMaterial);
+	
+	// numberThreeGeometry.computeBoundingBox();
+	// let numberWidth = numberThreeGeometry.boundingBox.max.x - numberThreeGeometry.boundingBox.min.x;
+
+	// numberThree.position.set(-0.5 * numberWidth, 50, 100);
+	// numberThree.rotation.x = -Math.PI / 4;
+	// scene.add(numberThree);
+
+/*
+fontLoader.load("public/styles/fonts/helvetiker_regular.typeface.json", function(font) {
+
+		let textGeometry = new THREE.TextGeometry("Hello three.js!", 
+			{
+				font: 'Helvetiker',
+				
+				size: 80,
+				height: 5,
+				curveSegments: 12,
+				
+				bevelEnabled: true,
+				bevelThickness: 10,
+				bevelSize: 8,
+				bevelSegments: 5
+			}
+		);
+
+		textGeometry.computeBoundingBox();
+		let centerOffset = -0.5 * (textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x);
+
+		let textMaterial = new THREE.MeshPhongMaterial({color: 0xff0000, specular: 0xffffff });
+
+		let text = new THREE.Mesh(textGeometry, textMaterial);
+		text.position.x(centerOffset);
+		text.position.y = FLOOR + 67;
+
+		text.castShadow = true;
+		text.receiveShadow = true;
+
+		scene.add(text);
+
+});
+*/
 
 /*document.addEventListener('keyup', function(e) {
 		switch(e.keyCode) {
