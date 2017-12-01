@@ -7,12 +7,7 @@ let sceneHeight, sceneWidth;
 let camera, scene, renderer;
 let orbitControls;
 let cube;
-let selected_block = null;
-let blocks = [];
-let _v3 = new THREE.Vector3;
-let _vector = new THREE.Vector3;
-let effect;
-let offset;
+let clock;
 
 init();
 
@@ -42,31 +37,27 @@ function createScene(){
 	scene.addEventListener(
 		'update',
 		function() {
-			if ( selected_block !== null ) {
-					
-					_v3.copy( mouse_position ).add( block_offset ).sub( selected_block.position ).multiplyScalar( 5 );
-					_v3.y = 0;
-					selected_block.setLinearVelocity( _v3 );
-					
-					// Reactivate all of the blocks
-					_v3.set( 0, 0, 0 );
-					for ( _i = 0; _i < blocks.length; _i++ ) {
-						blocks[_i].applyCentralImpulse( _v3 );
-					}
-				}
 			scene.simulate(undefined,2);
 		}
 	);
 	// creates sky blue color and adds to the scene
 	scene.background = new THREE.Color(0x90A2C5); //skyblue	
 
+	// sets up a game clock to start the countdown
+	countdownClock = new THREE.Clock();
+
 	// sets the camera and its position
   let viewAngle = 55;
   let aspect = sceneWidth / sceneHeight;
-  let near = 0.1;
+  let near = 1;
   let far = 1000; //2000
 	camera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	camera.position.set(0, 1, 5); //(0, 0, 100); // x y z
+	camera.position.set(0, 2, 10); //(0, 0, 100); // x y z
+	//scene.add(camera);
+
+	// camera helper
+	//let cameraHelper = new THREE.CameraHelper(camera);
+	//scene.add(cameraHelper);
 
 	// sets ambient light
 	let ambient = new THREE.AmbientLight(0xffffff, 0.5);
@@ -87,23 +78,23 @@ function createScene(){
 	//scene.add(helper); 
 
 	// creates green grass color and adds to scene
-	// let grassWidth = 2000;
-	// let grassLength = 800;
-	// let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
-	// let grassMaterial = Physijs.createMaterial(
-	// 	new THREE.MeshStandardMaterial({color: 'green'}),
-	// 	0.8, // high friction
-	// 	0.2  // low restitution
-	// );
-	// let grass = new Physijs.BoxMesh(
-	// 	grassGeometry, 
-	// 	grassMaterial,
-	// 	0 	// mass
-	// );
-	// grass.rotation.x = -Math.PI / 2;
-	// grass.position.y = -1.1;
-	// grass.receiveShadow = true;
-	// scene.add(grass);
+	let grassWidth = 2000;
+	let grassLength = 800;
+	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
+	let grassMaterial = Physijs.createMaterial(
+		new THREE.MeshStandardMaterial({color: 'green'}),
+		0.8, // high friction
+		0.2  // low restitution
+	);
+	let grass = new Physijs.BoxMesh(
+		grassGeometry, 
+		grassMaterial,
+		0 	// mass
+	);
+	grass.rotation.x = -Math.PI / 2;
+	grass.position.y = -1.1;
+	grass.receiveShadow = true;
+	scene.add(grass);
 
 	// creates grey racetrack color and adds to scene
 	let racetrackWidth = 11;
@@ -150,18 +141,11 @@ function createScene(){
 	cube.receiveShadow = false;
 	cube.position.y = -0.5;
 	scene.add(cube);
-
-	// adding constraints to try to get car physics logic to work
-	/*cube_constraint = new Physijs.DOFConstraint(
-		cube, 																// object A - cube
-		cube, 																// object B - cube
-		new THREE.Vector3(0, 0, 0)						// position - new vector
-	);
-	scene.addConstraint(cube_constraint);*/
+	cube.add(camera);
 
 	// enables you to visualize the x y and z axes
-	// let axes = new THREE.AxesHelper(100);
-	// scene.add(axes);
+	// let axesHelper = new THREE.AxesHelper(100);
+	// scene.add(axesHelper);
 
 	// enables you to visualize the grid
 	// let size = 100;
@@ -171,19 +155,42 @@ function createScene(){
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	// orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
-	// orbitControls.enableZoom = true;
-	// //orbitControls.addEventListener('change', render);
+	//orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
+	//orbitControls.enableZoom = true;
+
+	// create objects to be added to the scene at later intervals
+	/*
+	/ add 3D text
+	var materialFront = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+	var materialSide = new THREE.MeshBasicMaterial( { color: 0x000088 } );
+	var materialArray = [ materialFront, materialSide ];
+	var textGeom = new THREE.TextGeometry( "Hello, World!", 
+	{
+		size: 30, height: 4, curveSegments: 3,
+		font: "helvetiker", weight: "bold", style: "normal",
+		bevelThickness: 1, bevelSize: 2, bevelEnabled: true,
+		material: 0, extrudeMaterial: 1
+	});
+	// font: helvetiker, gentilis, droid sans, droid serif, optimer
+	// weight: normal, bold
+	
+	var textMaterial = new THREE.MeshFaceMaterial(materialArray);
+	var textMesh = new THREE.Mesh(textGeom, textMaterial );
+	
+	textGeom.computeBoundingBox();
+	var textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
+	
+	textMesh.position.set( -0.5 * textWidth, 50, 100 );
+	textMesh.rotation.x = -Math.PI / 4;
+	scene.add(textMesh);
+	*/
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
 }
 
 function animate() {
-	// animates the cube
-	// cube.rotation.y += 0.01;
 	requestAnimationFrame(animate);
-	//camera.position.set(0, 1, 5);
 	render();
 	update();
 }
@@ -193,36 +200,60 @@ function render() {
 }
 
 function update() {
+	currentTime = countdownClock.getElapsedTime();
 
+	// wait for 6 seconds after game loads to start countdown clock
+	if (currentTime >= 6) {
+		if (currentTime >= 7 && currentTime < 8) {
+			console.log('countdown begins: 3');
+		} else if (currentTime >= 8 && currentTime < 9) {
+			console.log(' -- 2 -- ');
+		} else if (currentTime >= 9 && currentTime < 10) {
+			console.log(' -- 1 -- ');
+		} else {
+			// after the countdown timer ends, you can start to move with the arrow keys
+			onKeydown();
+		}
+	}
+	render();
+	scene.simulate();
+}
+
+function onKeydown() {
 	document.addEventListener('keydown', function(e) {
-		// effect = 10;
-		// offset = 3;
 
 		switch(e.keyCode) {
 			case 37: //left
-				console.log('keydown: moving left!');
-				vectorForce = new THREE.Vector3(-10,0,0);
+				vectorForce = new THREE.Vector3(-5,0,0);
 				cube.applyCentralImpulse(vectorForce);
 				break;
 			case 39: //right
-				console.log('keydown: moving right!');
-				vectorForce = new THREE.Vector3(10,0,0);
+				vectorForce = new THREE.Vector3(5,0,0);
 				cube.applyCentralImpulse(vectorForce);
 				break;
 			case 38: //forward
-				console.log('keydown: moving forward!');
 				vectorForce = new THREE.Vector3(0,0,-10);
-				cube.applyCentralImpulse(vectorForce);
-				break;
-			case 40: //backwards
-				console.log('keydown: moving backwards!');
-				vectorForce = new THREE.Vector3(0,0,10);
 				cube.applyCentralImpulse(vectorForce);
 				break;
 		}
 	});
+}
 
-	/*document.addEventListener('keyup', function(e) {
+function onWindowResize() {
+	
+	// resizes and aligns depending on user screen size
+	sceneHeight = window.innerHeight;
+	sceneWidth = window.innerWidth;
+	renderer.setSize(sceneWidth, sceneHeight);
+	camera.aspect = sceneWidth / sceneHeight;
+	camera.updateProjectionMatrix();
+}
+
+///////////////////////////////
+////////// GRAVEYARD //////////
+///////////////////////////////
+
+/*document.addEventListener('keyup', function(e) {
 		switch(e.keyCode) {
 			case 37: //left
 				console.log('keyup: moving left!'); 
@@ -239,23 +270,16 @@ function update() {
 		}
 	});*/
 
-	render();
-	scene.simulate();
-}
+// vectorOffset = new THREE.Vector3(-10,0,0);
+// cube.applyForce(vectorForce, vectorOffset);	
 
-function onWindowResize() {
-	
-	// resizes and aligns depending on user screen size
-	sceneHeight = window.innerHeight;
-	sceneWidth = window.innerWidth;
-	renderer.setSize(sceneWidth, sceneHeight);
-	camera.aspect = sceneWidth / sceneHeight;
-	camera.updateProjectionMatrix();
-}
-
-///////////////////////////////
-////////// GRAVEYARD //////////
-///////////////////////////////
+// adding constraints to try to get car physics logic to work
+	/*cube_constraint = new Physijs.DOFConstraint(
+		cube, 																// object A - cube
+		cube, 																// object B - cube
+		new THREE.Vector3(0, 0, 0)						// position - new vector
+	);
+	scene.addConstraint(cube_constraint);*/
 
 // adding logic to try to get box physics to work
 				// let strength = 35; 
@@ -379,5 +403,18 @@ scene.add( ground );*/
 // enables you to see the light cone from the point light
 // let pointLightHelper = new THREE.PointLightHelper(pointLight, 1);
 // scene.add(pointLightHelper);
+
+/*if ( selected_block !== null ) {
+					
+					_v3.copy( mouse_position ).add( block_offset ).sub( selected_block.position ).multiplyScalar( 5 );
+					_v3.y = 0;
+					selected_block.setLinearVelocity( _v3 );
+					
+					// Reactivate all of the blocks
+					_v3.set( 0, 0, 0 );
+					for ( _i = 0; _i < blocks.length; _i++ ) {
+						blocks[_i].applyCentralImpulse( _v3 );
+					}
+				}*/
 
 
