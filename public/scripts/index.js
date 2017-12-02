@@ -12,6 +12,7 @@ let cube;
 let countdownBall;
 let countdownClock;
 let fontLoader = new THREE.FontLoader();
+let finishLineDistance = -250;
 
 // sets up the scene, camera, renderer and 3D objects
 createScene();
@@ -77,7 +78,7 @@ function createScene(){
 
 	// creates green grass color and adds to scene
 	let grassWidth = 2000;
-	let grassLength = 800;
+	let grassLength = 1600;
 	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
 	let grassMaterial = Physijs.createMaterial(
 		new THREE.MeshStandardMaterial({color: 'green'}),
@@ -96,7 +97,7 @@ function createScene(){
 
 	// creates grey racetrack color and adds to scene
 	let racetrackWidth = 11;
-	let racetrackHeight = 800;
+	let racetrackHeight = 1600;
 	let racetrackGeometry = new THREE.PlaneGeometry(racetrackWidth, racetrackHeight);
 	let racetrackMaterial = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({color: 0x576259}), //asphalt grey
@@ -153,7 +154,7 @@ function createScene(){
 	finishLine.castShadow = false;
 	finishLine.rotation.x = -Math.PI / 2;
 	finishLine.position.y = -0.99;
-	finishLine.position.z = -250;
+	finishLine.position.z = finishLineDistance;
 	scene.add(finishLine);
 
 	// creates racecube and adds to scene
@@ -172,7 +173,19 @@ function createScene(){
 	cube.receiveShadow = true;
 	cube.position.y = -0.5;
 	scene.add(cube);
-	// cube.add(camera);
+	cube.add(camera);
+	
+	// countdown ball
+	// starts invisible
+	var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	var ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	var countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	countdownBall.castShadow = true;
+	countdownBall.receiveShadow = true;
+	countdownBall.position.y = 2;
+	countdownBall.position.x = 1;
+	countdownBall.position.z = 1;
+	scene.add(countdownBall);
 
 	// enables you to visualize the x y and z axes
 	// let axesHelper = new THREE.AxesHelper(100);
@@ -186,22 +199,8 @@ function createScene(){
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
-	orbitControls.enableZoom = true;
-
-	// create objects to be added to the scene at later intervals
-	
-	// countdown ball
-	// starts invisible
-	var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	var ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	var countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
-	countdownBall.castShadow = true;
-	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 2;
-	countdownBall.position.x = 1;
-	countdownBall.position.z = 1;
-	scene.add(countdownBall);
+	//orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
+	//orbitControls.enableZoom = true;
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
@@ -241,46 +240,37 @@ function update() {
 		}
 	} else if (currentTime >= 10.025) {
 		// after the countdown timer ends, you can start to move with the arrow keys
-		onKeydown();
+		if (cube.position.z <= finishLineDistance) {
+			console.log("you made it to the finish line!");
+			document.removeEventListener('keydown', moveCube);
+		} else {
+			document.addEventListener('keydown', moveCube.bind(this), true);
+			// document.addEventListener('keydown', (e) => { 
+			// 	moveCube(e); 
+			// }, true);
+		}
 	}
 
-	finishLineCheck();
 	render();
 	scene.simulate();
 }
 
-function finishLineCheck() {
-	/*for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
-	{		
-		var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
-		var globalVertex = localVertex.applyMatrix4( MovingCube.matrix );
-		var directionVector = globalVertex.sub( MovingCube.position );
-		
-		var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
-		var collisionResults = ray.intersectObjects( collidableMeshList );
-		if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
-			appendText(" Hit ");
-	}	*/
-}
-
-function onKeydown() {
-	document.addEventListener('keydown', function(e) {
-
-		switch(e.keyCode) {
-			case 37: //left
-				vectorForce = new THREE.Vector3(-5,0,0);
-				cube.applyCentralImpulse(vectorForce);
-				break;
-			case 39: //right
-				vectorForce = new THREE.Vector3(5,0,0);
-				cube.applyCentralImpulse(vectorForce);
-				break;
-			case 38: //forward
-				vectorForce = new THREE.Vector3(0,0,-10);
-				cube.applyCentralImpulse(vectorForce);
-				break;
-		}
-	});
+function moveCube() {
+	console.log(this);
+	switch(this.keyCode) {
+		case 37: //left
+			vectorForce = new THREE.Vector3(-5,0,0);
+			cube.applyCentralImpulse(vectorForce);
+			break;
+		case 39: //right
+			vectorForce = new THREE.Vector3(5,0,0);
+			cube.applyCentralImpulse(vectorForce);
+			break;
+		case 38: //forward
+			vectorForce = new THREE.Vector3(0,0,-10);
+			cube.applyCentralImpulse(vectorForce);
+			break;
+	}
 }
 
 function onWindowResize() {
@@ -296,6 +286,18 @@ function onWindowResize() {
 ///////////////////////////////
 ////////// GRAVEYARD //////////
 ///////////////////////////////
+
+/*for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
+{		
+	var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
+	var globalVertex = localVertex.applyMatrix4( MovingCube.matrix );
+	var directionVector = globalVertex.sub( MovingCube.position );
+	
+	var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+	var collisionResults = ray.intersectObjects( collidableMeshList );
+	if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
+		appendText(" Hit ");
+}	*/
 
 /*
 // creates starting line and adds to scene
