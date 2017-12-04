@@ -4,7 +4,7 @@ Physijs.scripts.worker = '../scripts/controls/physijs_worker.js'; //path relativ
 Physijs.scripts.ammo = 'ammo.js'; //path relative to physijs_worker
 
 let sceneHeight, sceneWidth;
-let camera;
+let perspectiveCamera;
 let scene;
 let renderer;
 let orbitControls;
@@ -16,6 +16,10 @@ let font;
 let timerHTML = document.getElementById("timer");
 let startTime = "00 '00 \"00";
 let raceClock;
+let shrinkScreenSize = 4;
+let minimapCamera; 
+let minimapWidth = 240; 
+let minimapHeight = 160; // w/h should match div dimensions
 
 // sets up the scene, camera, renderer and 3D objects
 createScene();
@@ -25,8 +29,8 @@ animate();
 function createScene(){
 	// sets the renderer
 	renderer = new THREE.WebGLRenderer({antialias: true});
-	sceneWidth = window.innerWidth;
-  sceneHeight = window.innerHeight;
+	sceneWidth = window.innerWidth - shrinkScreenSize;
+  sceneHeight = window.innerHeight - shrinkScreenSize;
 	renderer.setSize(sceneWidth, sceneHeight); 
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -42,20 +46,34 @@ function createScene(){
 			scene.simulate(undefined,2);
 		}
 	);
+	
 	// creates sky blue color and adds to the scene
-	scene.background = new THREE.Color(0x90A2C5); //skyblue	
+	// scene.background = new THREE.Color(0x90A2C5); //skyblue	
 
 	// sets up a game clock to start the countdown
 	countdownClock = new THREE.Clock();
 
-	// sets the camera and its position
+	// orthographic cameras
+	minimapCamera = new THREE.OrthographicCamera(
+    window.innerWidth / -2,		// Left
+    window.innerWidth / 2,		// Right
+    window.innerHeight / 2,		// Top
+    window.innerHeight / -2,	// Bottom
+    -5000,            			// Near 
+    10000 );           			// Far 
+	minimapCamera.up = new THREE.Vector3(0,0,-1);
+	minimapCamera.lookAt(new THREE.Vector3(0,-1,0));
+	scene.add(minimapCamera);
+
+	// sets the perspective camera and its position
   let viewAngle = 55;
   let aspect = sceneWidth / sceneHeight;
   let near = 1;
   let far = 1000; //2000
-	camera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	camera.position.set(0, 2, 10); //(0, 0, 100); // x y z
-	//scene.add(camera);
+	perspectiveCamera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
+	perspectiveCamera.position.set(0, 2, 10); //(0, 0, 100); // x y z
+	perspectiveCamera.lookAt(scene.position);
+	scene.add(perspectiveCamera);
 
 	// sets ambient light
 	let ambient = new THREE.AmbientLight(0xffffff, 0.5);
@@ -70,10 +88,6 @@ function createScene(){
 	light.shadow.camera.near = 0.5;
 	light.shadow.camera.far = 50;
 	scene.add(light);
-
-	// enables you to see the light cone from the directional light
-	//let helper = new THREE.CameraHelper(light.shadow.camera);
-	//scene.add(helper); 
 
 	// creates green grass color and adds to scene
 	let grassWidth = 2000;
@@ -172,7 +186,7 @@ function createScene(){
 	cube.receiveShadow = true;
 	cube.position.y = -0.5;
 	scene.add(cube);
-	// cube.add(camera);
+	// cube.add(perspectiveCamera);
 	
 	// countdown ball
 	// starts invisible
@@ -186,27 +200,40 @@ function createScene(){
 	countdownBall.position.z = 1;
 	scene.add(countdownBall);
 
+	// enables you to see the light cone from the directional light
+	//let helper = new THREE.CameraHelper(light.shadow.camera);
+	//scene.add(helper); 
+
 	// camera helper
-	// let cameraHelper = new THREE.CameraHelper(camera);
-	// scene.add(cameraHelper);
+	// let perspectiveCameraHelper = new THREE.CameraHelper(perspectiveCamera);
+	// scene.add(perspectiveCameraHelper);
+
+	// minimapCamera helper
+	// let minimapCameraHelper = new THREE.CameraHelper(minimapCamera);
+	// scene.add(minimapCameraHelper);
 
 	// enables you to visualize the x y and z axes
 	// let axesHelper = new THREE.AxesHelper(100);
 	// scene.add(axesHelper);
 
 	// enables you to visualize the grid
-	// let size = 100;
+	// let size = 1000;
 	// let divisions = 100;
 	// let gridHelper = new THREE.GridHelper(size, divisions);
 	// gridHelper.position.y = -1.0;
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
-	orbitControls.enableZoom = true;
+	// orbitControls = new THREE.OrbitControls(perspectiveCamera); //renderer.domElement
+	// orbitControls.enableZoom = true;
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
+
+	// set the renderer
+	renderer.setSize(sceneWidth, sceneHeight);
+	renderer.setClearColor(0x000000, 1);
+	renderer.autoClear = false;
 }
 
 function animate() {
@@ -216,11 +243,23 @@ function animate() {
 }
 
 function render() {
-	renderer.render(scene, camera);
+	let sceneWidth = window.innerWidth;
+	let sceneHeight = window.innerHeight;
+	
+	// setViewport parameters: lower_left_x, lower_left_y, viewport_width, viewport_height
+	renderer.setViewport(0, 0, sceneWidth, sceneHeight);
+	renderer.clear();
+
+	// full display
+	renderer.render(scene, perspectiveCamera);
+
+	// minimap (overhead orthogonal camera): lower_left_x, lower_left_y, viewport_width, viewport_height
+	renderer.setViewport(10, sceneHeight - minimapHeight - 10, minimapWidth, minimapHeight);
+	renderer.render(scene, minimapCamera);
 }
 
 function update() {
-	countdownBall = scene.children[7];
+	countdownBall = scene.children[9];
 	currentTime = countdownClock.getElapsedTime();
 
 	if (currentTime >= 4 && currentTime < 10.025) {
@@ -228,6 +267,8 @@ function update() {
 	} else if (currentTime >= 10.025) {
 		checkWinner();
 	}
+
+	// perspectiveCamera.rotation.x += 0.001;
 
 	updateCameraPositionZ();
 	render();
@@ -332,17 +373,16 @@ function moveCube(e) {
 }
 
 function updateCameraPositionZ() {
-	camera.position.z = cube.position.z + 10;
+	perspectiveCamera.position.z = cube.position.z + 10;
 }
 
 function onWindowResize() {
-	
 	// resizes and aligns depending on user screen size
-	sceneHeight = window.innerHeight;
-	sceneWidth = window.innerWidth;
+	sceneHeight = window.innerHeight - shrinkScreenSize;
+	sceneWidth = window.innerWidth - shrinkScreenSize;
 	renderer.setSize(sceneWidth, sceneHeight);
-	camera.aspect = sceneWidth / sceneHeight;
-	camera.updateProjectionMatrix();
+	perspectiveCamera.aspect = sceneWidth / sceneHeight;
+	perspectiveCamera.updateProjectionMatrix();
 }
 
 ///////////////////////////////
@@ -587,6 +627,14 @@ scene.add( ground );*/
 // let sky = new THREE.Mesh(skyGeometry, material);
 // sky.material.side = THREE.BackSide;
 // scene.add(sky);
+// let textureLoader = new THREE.TextureLoader();
+// 	textureLoader.crossOrigin = '';
+// 	let sky = textureLoader.load("./public/images/sky2.jpeg");
+// 	console.log(textureLoader);
+// 	sky.wrapS = THREE.RepeatWrapping;
+// 	sky.wrapT = THREE.RepeatWrapping;
+// 	sky.repeat.set(4, 4);
+// 	scene.background = new THREE.Texture(sky);
 
 // point light: alternative to directional light
 // let light = new THREE.PointLight(0xffffff);
