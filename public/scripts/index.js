@@ -60,7 +60,7 @@ function createScene(){
     window.innerHeight / 2,		// Top
     window.innerHeight / -2,	// Bottom
     -5000,            			// Near 
-    10000 );           			// Far 
+    10000);           			// Far 
 	minimapCamera.up = new THREE.Vector3(0,0,-1);
 	minimapCamera.lookAt(new THREE.Vector3(0,-1,0));
 	scene.add(minimapCamera);
@@ -76,12 +76,12 @@ function createScene(){
 	scene.add(perspectiveCamera);
 
 	// sets ambient light
-	let ambient = new THREE.AmbientLight(0xffffff, 0.5);
+	let ambient = new THREE.AmbientLight(0xFFFFFF, 0.5);
 	scene.add(ambient);
 
 	// sets sunlight with directional lighting effects
 	light = new THREE.DirectionalLight(0xFFFFFF, 0.8); 
-	light.position.set(3,6,5);
+	light.position.set(0,500,5); // x y z
 	light.castShadow = true;
 	light.shadow.mapSize.width = 256;
 	light.shadow.mapSize.height = 256;
@@ -90,7 +90,7 @@ function createScene(){
 	scene.add(light);
 
 	// creates green grass color and adds to scene
-	let grassWidth = 2000;
+	let grassWidth = 100;
 	let grassLength = 1600;
 	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
 	let grassMaterial = Physijs.createMaterial(
@@ -145,8 +145,8 @@ function createScene(){
 	startingLine.receiveShadow = true;
 	startingLine.castShadow = false;
 	startingLine.rotation.x = -Math.PI / 2;
-	startingLine.position.y = -0.99;
-	startingLine.position.z = -5;
+	startingLine.position.y = -0.999;
+	startingLine.position.z = 775;
 	scene.add(startingLine);
 
 	// creates finishLine plane and adds to scene
@@ -185,6 +185,7 @@ function createScene(){
 	cube.castShadow = true;
 	cube.receiveShadow = true;
 	cube.position.y = -0.5;
+	cube.position.z = 780;
 	scene.add(cube);
 	// cube.add(perspectiveCamera);
 	
@@ -195,14 +196,14 @@ function createScene(){
 	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
 	countdownBall.castShadow = true;
 	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 2;
+	countdownBall.position.y = 1;
 	countdownBall.position.x = 1;
-	countdownBall.position.z = 1;
+	countdownBall.position.z = 780;
 	scene.add(countdownBall);
 
 	// enables you to see the light cone from the directional light
-	//let helper = new THREE.CameraHelper(light.shadow.camera);
-	//scene.add(helper); 
+	let helper = new THREE.CameraHelper(light.shadow.camera);
+	scene.add(helper); 
 
 	// camera helper
 	// let perspectiveCameraHelper = new THREE.CameraHelper(perspectiveCamera);
@@ -254,7 +255,7 @@ function render() {
 	renderer.render(scene, perspectiveCamera);
 
 	// minimap (overhead orthogonal camera): lower_left_x, lower_left_y, viewport_width, viewport_height
-	renderer.setViewport(10, sceneHeight - minimapHeight - 10, minimapWidth, minimapHeight);
+	renderer.setViewport(-75, sceneHeight - minimapHeight - 20, minimapWidth, minimapHeight);
 	renderer.render(scene, minimapCamera);
 }
 
@@ -268,7 +269,7 @@ function update() {
 		checkWinner();
 	}
 
-	// perspectiveCamera.rotation.x += 0.001;
+	//perspectiveCamera.rotation.y += 0.001;
 
 	updateCameraPositionZ();
 	render();
@@ -305,13 +306,13 @@ function startCountdownClock(countdownBall, currentTime) {
 function checkWinner() {
 	if (cube.position.z <= finishLineDistance) {
 		console.log("you made it to the finish line!");
-		document.removeEventListener('keydown', moveCube);
+		document.removeEventListener('keyup', moveCube);
 		stopTimer();
 	} else {
 		// update the time on the race clock
 		updateTimer();
 		// after the countdown timer ends, you can start to move with the arrow keys
-		document.addEventListener('keydown', (e) => {
+		document.addEventListener('keyup', (e) => {
 			moveCube(e);
 		});		
 	}
@@ -374,6 +375,8 @@ function moveCube(e) {
 
 function updateCameraPositionZ() {
 	perspectiveCamera.position.z = cube.position.z + 10;
+	// let lightPosition = cube.position.z + 5;
+	// light.position.set(3, 6, lightPosition); 
 }
 
 function onWindowResize() {

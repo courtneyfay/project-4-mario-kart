@@ -22,7 +22,7 @@ canvas {
 #arrows {
 	bottom: 2%;
 	display: inline;
-	left: 2%;
+	right: 2%;
 	margin: 0 auto;
 	position: absolute;
 	z-index: 100;
