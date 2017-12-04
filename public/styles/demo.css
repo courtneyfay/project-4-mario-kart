@@ -1,8 +1,19 @@
-#info {
+body { 
+	margin: 0; 
+}
+
+canvas { 
+	width: 99%; 
+	height: 99% 
+}
+
+#timer {
+	color: white;
+	display: inline;
+	margin: 0 auto;
 	position: absolute;
-	top: 10px;
-	width: 100%;
-	text-align: center;
+	text-align: right;
+	top: 5px;
+	width: 99%;
 	z-index: 100;
-	display: block;
 }

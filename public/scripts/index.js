@@ -11,8 +11,11 @@ let orbitControls;
 let cube;
 let countdownBall;
 let countdownClock;
-let fontLoader = new THREE.FontLoader();
 let finishLineDistance = -250;
+let font;
+let timerHTML = document.getElementById("timer");
+let startTime = "00 '00 \"00";
+let raceClock;
 
 // sets up the scene, camera, renderer and 3D objects
 createScene();
@@ -173,13 +176,13 @@ function createScene(){
 	cube.receiveShadow = true;
 	cube.position.y = -0.5;
 	scene.add(cube);
-	cube.add(camera);
+	// cube.add(camera);
 	
 	// countdown ball
 	// starts invisible
-	var ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	var ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	var countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
 	countdownBall.castShadow = true;
 	countdownBall.receiveShadow = true;
 	countdownBall.position.y = 2;
@@ -199,8 +202,8 @@ function createScene(){
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	//orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
-	//orbitControls.enableZoom = true;
+	orbitControls = new THREE.OrbitControls(camera); //renderer.domElement
+	orbitControls.enableZoom = true;
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
@@ -221,6 +224,18 @@ function update() {
 	currentTime = countdownClock.getElapsedTime();
 
 	if (currentTime >= 4 && currentTime < 10.025) {
+		startCountdownClock(countdownBall, currentTime);
+	} else {
+		checkWinner();
+	}
+
+	render();
+	scene.simulate();
+}
+
+function startCountdownClock(countdownBall, currentTime) {
+	
+	if (currentTime >= 4 && currentTime < 10.025) {
 		// wait for 4 seconds after game loads to make countdown ball appear
 		countdownBall.material.color.setHex(0x000000);
 		countdownBall.material.opacity = 0.75; 
@@ -235,29 +250,64 @@ function update() {
 			//stoplight ends at green
 			countdownBall.material.color.setHex(0x00ff00); 
 		} else if (currentTime >=10 && currentTime < 10.025) {
-			console.log("trying to remove countdownBall again");
+			// remove countdown timer
+			console.log("trying to remove the countdownBall again");
 			scene.remove(countdownBall);
-		}
-	} else if (currentTime >= 10.025) {
-		// after the countdown timer ends, you can start to move with the arrow keys
-		if (cube.position.z <= finishLineDistance) {
-			console.log("you made it to the finish line!");
-			document.removeEventListener('keydown', moveCube);
-		} else {
-			document.addEventListener('keydown', moveCube.bind(this), true);
-			// document.addEventListener('keydown', (e) => { 
-			// 	moveCube(e); 
-			// }, true);
-		}
-	}
+			
+			// after the countdown timer ends, start the race timer
+			startTimer();
 
-	render();
-	scene.simulate();
+			// after the countdown timer ends, you can start to move with the arrow keys
+			document.addEventListener('keydown', (e) => { 
+				moveCube(e);
+			});
+		}
+	} 
 }
 
-function moveCube() {
-	console.log(this);
-	switch(this.keyCode) {
+function checkWinner() {
+	if (cube.position.z <= finishLineDistance) {
+		console.log("you made it to the finish line!");
+		document.removeEventListener('keydown', moveCube);
+		stopTimer();
+	} else {
+		// update the time on the race clock
+		updateTimer();		
+	}
+}
+
+function startTimer() {
+	// after the countdown timer ends, race timer appears in the top right corner
+	timerHTML.textContent = "TIME " + startTime;
+	raceClock = new THREE.Clock();
+}
+
+function updateTimer() {
+	let updatedTime;
+	rawTime = raceClock.getElapsedTime();
+
+	if (rawTime > 60) {
+		updatedTime = rawTime;
+	} else {
+		updatedTime = 
+	}
+
+	if (rawTime > 60) {
+		updatedTime = "ka";
+	}
+	
+	timerHTML.textContent = "TIME " + updatedTime;
+	//"00 '00 \"00";
+}
+
+function stopTimer() {
+
+	console.log("trying to stop the timer");
+}
+
+function moveCube(e) {
+	// console.log(e);
+	switch(e.keyCode) {
 		case 37: //left
 			vectorForce = new THREE.Vector3(-5,0,0);
 			cube.applyCentralImpulse(vectorForce);
