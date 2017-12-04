@@ -58,8 +58,8 @@ function createScene(){
 	//scene.add(camera);
 
 	// camera helper
-	//let cameraHelper = new THREE.CameraHelper(camera);
-	//scene.add(cameraHelper);
+	let cameraHelper = new THREE.CameraHelper(camera);
+	scene.add(cameraHelper);
 
 	// sets ambient light
 	let ambient = new THREE.AmbientLight(0xffffff, 0.5);
@@ -225,7 +225,7 @@ function update() {
 
 	if (currentTime >= 4 && currentTime < 10.025) {
 		startCountdownClock(countdownBall, currentTime);
-	} else {
+	} else if (currentTime >= 10.025) {
 		checkWinner();
 	}
 
@@ -256,11 +256,6 @@ function startCountdownClock(countdownBall, currentTime) {
 			
 			// after the countdown timer ends, start the race timer
 			startTimer();
-
-			// after the countdown timer ends, you can start to move with the arrow keys
-			document.addEventListener('keydown', (e) => { 
-				moveCube(e);
-			});
 		}
 	} 
 }
@@ -272,7 +267,11 @@ function checkWinner() {
 		stopTimer();
 	} else {
 		// update the time on the race clock
-		updateTimer();		
+		updateTimer();
+		// after the countdown timer ends, you can start to move with the arrow keys
+		document.addEventListener('keydown', (e) => {
+			moveCube(e);
+		});		
 	}
 }
 
@@ -284,25 +283,33 @@ function startTimer() {
 
 function updateTimer() {
 	let updatedTime;
-	rawTime = raceClock.getElapsedTime();
+	let rawTime = raceClock.getElapsedTime();
 
-	if (rawTime > 60) {
-		updatedTime = rawTime;
-	} else {
-		updatedTime = 
+	if (rawTime >= 60) {
+		updatedTime = "'0";
+		updatedTime += Math.round(rawTime / 60);
+		let seconds = Math.round(rawTime % 60);
+		if (seconds >= 10) {
+			updatedTime += " \"";
+			updatedTime += seconds;
+		} else {
+			updatedTime += " \"0";
+			updatedTime += seconds;
+		}
+	} else if (Math.round(rawTime) < 60 && Math.round(rawTime) >= 10) {
+		updatedTime = "'00 \"";
+		updatedTime += Math.round(rawTime);
+	} else if (Math.round(rawTime) < 10 && Math.round(rawTime) >= 0) {
+		updatedTime = "'00 \"";
+		updatedTime += "0";
+		updatedTime += Math.round(rawTime);
 	}
 
-	if (rawTime > 60) {
-		updatedTime = "ka";
-	}
-	
 	timerHTML.textContent = "TIME " + updatedTime;
-	//"00 '00 \"00";
 }
 
 function stopTimer() {
-
-	console.log("trying to stop the timer");
+	raceClock.stop();
 }
 
 function moveCube(e) {
@@ -319,6 +326,7 @@ function moveCube(e) {
 		case 38: //forward
 			vectorForce = new THREE.Vector3(0,0,-10);
 			cube.applyCentralImpulse(vectorForce);
+			console.log(cube);
 			break;
 	}
 }
@@ -336,6 +344,13 @@ function onWindowResize() {
 ///////////////////////////////
 ////////// GRAVEYARD //////////
 ///////////////////////////////
+
+// raceClock timer
+//"00 '00 \"00";
+// rawMilliseconds = Math.round(rawTime * 100) / 100;
+// stringMilliseconds = rawMilliseconds.toString();
+// milliseconds = stringMilliseconds.substring(stringMilliseconds.indexOf(".") + 1);
+// updatedTime = milliseconds;
 
 /*for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
 {		

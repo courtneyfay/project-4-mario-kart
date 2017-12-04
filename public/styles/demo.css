@@ -10,9 +10,10 @@ canvas {
 #timer {
 	color: white;
 	display: inline;
+	font-size: 30px;
 	margin: 0 auto;
 	position: absolute;
-	text-align: right;
+	text-align: center;
 	top: 5px;
 	width: 99%;
 	z-index: 100;
