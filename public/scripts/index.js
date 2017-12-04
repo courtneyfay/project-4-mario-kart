@@ -57,10 +57,6 @@ function createScene(){
 	camera.position.set(0, 2, 10); //(0, 0, 100); // x y z
 	//scene.add(camera);
 
-	// camera helper
-	let cameraHelper = new THREE.CameraHelper(camera);
-	scene.add(cameraHelper);
-
 	// sets ambient light
 	let ambient = new THREE.AmbientLight(0xffffff, 0.5);
 	scene.add(ambient);
@@ -85,8 +81,8 @@ function createScene(){
 	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
 	let grassMaterial = Physijs.createMaterial(
 		new THREE.MeshStandardMaterial({color: 'green'}),
-		0.9, // high friction
-		0.2  // low restitution
+		1.0, // highest friction
+		0.4  // lowest restitution
 	);
 	let grass = new Physijs.BoxMesh(
 		grassGeometry, 
@@ -104,7 +100,7 @@ function createScene(){
 	let racetrackGeometry = new THREE.PlaneGeometry(racetrackWidth, racetrackHeight);
 	let racetrackMaterial = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({color: 0x576259}), //asphalt grey
-		0.5,  // medium friction
+		0.8,  // high friction
 		0.4		// low restitution
 	);
 	let racetrack = new Physijs.BoxMesh(
@@ -164,13 +160,13 @@ function createScene(){
 	let cubeGeometry = new THREE.BoxGeometry(1,1,1);
 	let cubeMaterial = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({color: 0xE50009}), // Mario red
-		0.8, // high friction
-		0.5  // medium restitution
+		0.8, // highest friction
+		0.4  // medium restitution
 	);
 	cube = new Physijs.BoxMesh(
 		cubeGeometry, 
 		cubeMaterial,
-		1500  // mass
+		1000  // mass
 	);
 	cube.castShadow = true;
 	cube.receiveShadow = true;
@@ -189,6 +185,10 @@ function createScene(){
 	countdownBall.position.x = 1;
 	countdownBall.position.z = 1;
 	scene.add(countdownBall);
+
+	// camera helper
+	// let cameraHelper = new THREE.CameraHelper(camera);
+	// scene.add(cameraHelper);
 
 	// enables you to visualize the x y and z axes
 	// let axesHelper = new THREE.AxesHelper(100);
@@ -229,6 +229,7 @@ function update() {
 		checkWinner();
 	}
 
+	updateCameraPositionZ();
 	render();
 	scene.simulate();
 }
@@ -326,9 +327,12 @@ function moveCube(e) {
 		case 38: //forward
 			vectorForce = new THREE.Vector3(0,0,-10);
 			cube.applyCentralImpulse(vectorForce);
-			console.log(cube);
 			break;
 	}
+}
+
+function updateCameraPositionZ() {
+	camera.position.z = cube.position.z + 10;
 }
 
 function onWindowResize() {
