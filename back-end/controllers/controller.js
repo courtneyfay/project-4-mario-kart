@@ -35,9 +35,8 @@ homePage = (req, res) => {
 
 indexScores = (req, res) => {
 	console.log("WORKING: serving up high scores");
-	Scores.findAll()
+	Scores.findAll({ order: [['score', 'DESC']]})
 		.then(function(scores) {
-			console.log(scores);
 			res.render("partials/scores.ejs", {scores: scores});
 		});
 };
@@ -50,14 +49,26 @@ showScore = (req, res) => {
 
 createScore = (req, res) => {
 	console.log("WORKING: creating a new score");
+	/*
+	~~ WORKED WITH THE ARRAY ~~
 	let newScore = {
 		id: 5,
 		name: "Court",
 		time: req.body.time,
 		score: req.body.score
 	};
-	scores.push(newScore);
-	res.json(newScore);
+	scores.push(newScore);*/
+
+	Scores.create({
+		name: "Court",
+		time: req.body.time,
+		score: req.body.score 
+	})
+	.then(function(score) {
+		if(!score) res.send("score not saved");
+		console.log(score);
+		res.json(score);
+	});
 };
 
 updateScore = (req, res) => {
