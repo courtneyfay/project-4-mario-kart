@@ -27,3 +27,15 @@ canvas {
 	position: absolute;
 	z-index: 100;
 }
+
+#game-over {
+	color: red;
+	display: inline;
+	font-size: 200px;
+	margin: 0 auto;
+	position: absolute;
+	text-align: center;
+	top: 15%;
+	width: 99%;
+	z-index: 100;
+}

@@ -20,6 +20,7 @@ let shrinkScreenSize = 4;
 let minimapCamera; 
 let minimapWidth = 240; 
 let minimapHeight = 160; // w/h should match div dimensions
+let gameoverHTML = document.getElementById("game-over");
 
 // sets up the scene, camera, renderer and 3D objects
 createScene();
@@ -48,24 +49,24 @@ function createScene(){
 	);
 	
 	// creates sky blue color and adds to the scene
-	// scene.background = new THREE.Color(0x90A2C5); //skyblue	
+	//scene.background = new THREE.Color(0x90A2C5); //skyblue	
 
 	// sets up a game clock to start the countdown
 	countdownClock = new THREE.Clock();
 
-	// orthographic cameras
+	// 0: orthographic camera
 	minimapCamera = new THREE.OrthographicCamera(
-    window.innerWidth / -2,		// Left
-    window.innerWidth / 2,		// Right
-    window.innerHeight / 2,		// Top
-    window.innerHeight / -2,	// Bottom
-    -5000,            			// Near 
-    10000);           			// Far 
+    window.innerWidth / -2,			// Left
+    window.innerWidth / 2,			// Right
+    window.innerHeight / 2,			// Top
+    window.innerHeight / -2,		// Bottom
+    -5000,            					// Near 
+    10000);           					// Far 
 	minimapCamera.up = new THREE.Vector3(0,0,-1);
 	minimapCamera.lookAt(new THREE.Vector3(0,-1,0));
 	scene.add(minimapCamera);
 
-	// sets the perspective camera and its position
+	// 1: sets the perspective camera and its position
   let viewAngle = 55;
   let aspect = sceneWidth / sceneHeight;
   let near = 1;
@@ -75,11 +76,11 @@ function createScene(){
 	perspectiveCamera.lookAt(scene.position);
 	scene.add(perspectiveCamera);
 
-	// sets ambient light
+	// 2: sets ambient light
 	let ambient = new THREE.AmbientLight(0xFFFFFF, 0.5);
 	scene.add(ambient);
 
-	// sets sunlight with directional lighting effects
+	// 3: sets sunlight with directional lighting effects
 	light = new THREE.DirectionalLight(0xFFFFFF, 0.8); 
 	light.position.set(0,500,5); // x y z
 	light.castShadow = true;
@@ -89,7 +90,7 @@ function createScene(){
 	light.shadow.camera.far = 50;
 	scene.add(light);
 
-	// creates green grass color and adds to scene
+	// 4: creates green grass color and adds to scene
 	let grassWidth = 100;
 	let grassLength = 1600;
 	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
@@ -108,7 +109,7 @@ function createScene(){
 	grass.receiveShadow = true;
 	scene.add(grass);
 
-	// creates grey racetrack color and adds to scene
+	// 5: creates grey racetrack color and adds to scene
 	let racetrackWidth = 11;
 	let racetrackHeight = 1600;
 	let racetrackGeometry = new THREE.PlaneGeometry(racetrackWidth, racetrackHeight);
@@ -128,7 +129,7 @@ function createScene(){
 	racetrack.position.y = -1;
 	scene.add(racetrack);
 
-	// creates startingLine plane and adds to scene
+	// 6: creates startingLine plane and adds to scene
 	let startingLineWidth = 11;
 	let startingLineHeight = 3;
 	let startingLineGeometry = new THREE.PlaneGeometry(startingLineWidth, startingLineHeight);
@@ -149,7 +150,7 @@ function createScene(){
 	startingLine.position.z = 775;
 	scene.add(startingLine);
 
-	// creates finishLine plane and adds to scene
+	// 7: creates finishLine plane and adds to scene
 	let finishLineWidth = 11;
 	let finishLineHeight = 3;
 	let finishLineGeometry = new THREE.PlaneGeometry(finishLineWidth, finishLineHeight);
@@ -170,7 +171,7 @@ function createScene(){
 	finishLine.position.z = finishLineDistance;
 	scene.add(finishLine);
 
-	// creates racecube and adds to scene
+	// 8: creates racecube and adds to scene
 	let cubeGeometry = new THREE.BoxGeometry(1,1,1);
 	let cubeMaterial = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({color: 0xE50009}), // Mario red
@@ -180,7 +181,7 @@ function createScene(){
 	cube = new Physijs.BoxMesh(
 		cubeGeometry, 
 		cubeMaterial,
-		1000  // mass
+		1500  // mass
 	);
 	cube.castShadow = true;
 	cube.receiveShadow = true;
@@ -189,7 +190,7 @@ function createScene(){
 	scene.add(cube);
 	// cube.add(perspectiveCamera);
 	
-	// countdown ball
+	// 9: countdown ball
 	// starts invisible
 	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
 	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
@@ -202,8 +203,8 @@ function createScene(){
 	scene.add(countdownBall);
 
 	// enables you to see the light cone from the directional light
-	let helper = new THREE.CameraHelper(light.shadow.camera);
-	scene.add(helper); 
+	// let helper = new THREE.CameraHelper(light.shadow.camera);
+	// scene.add(helper); 
 
 	// camera helper
 	// let perspectiveCameraHelper = new THREE.CameraHelper(perspectiveCamera);
@@ -306,16 +307,25 @@ function startCountdownClock(countdownBall, currentTime) {
 function checkWinner() {
 	if (cube.position.z <= finishLineDistance) {
 		console.log("you made it to the finish line!");
-		document.removeEventListener('keyup', moveCube);
-		stopTimer();
+		gameOver();
 	} else {
 		// update the time on the race clock
 		updateTimer();
 		// after the countdown timer ends, you can start to move with the arrow keys
-		document.addEventListener('keyup', (e) => {
-			moveCube(e);
-		});		
+		document.addEventListener('keydown', handler.bind(this), false);
 	}
+}
+
+function gameOver() {
+	stopTimer();
+	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
+  cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
+  //document.removeEventListener('keydown', handler.bind(this), false);
+  gameoverHTML.textContent = "GAME OVER!";
+}
+
+function handler(e) {
+	moveCube(e);
 }
 
 function startTimer() {
@@ -355,8 +365,15 @@ function stopTimer() {
 	raceClock.stop();
 }
 
+//let moveCube = function(e) {
 function moveCube(e) {
-	// console.log(e);
+	//console.log(e);
+	cube = scene.children[8];
+	// console.log("scene child");
+	// console.log(scene.children[8]);
+	// console.log("cube");
+	// console.log(cube);
+
 	switch(e.keyCode) {
 		case 37: //left
 			vectorForce = new THREE.Vector3(-5,0,0);
@@ -367,6 +384,9 @@ function moveCube(e) {
 			cube.applyCentralImpulse(vectorForce);
 			break;
 		case 38: //forward
+			// console.log(e);
+			// console.log(cube);
+			//console.log(Math.round(cube.position.z));
 			vectorForce = new THREE.Vector3(0,0,-10);
 			cube.applyCentralImpulse(vectorForce);
 			break;
