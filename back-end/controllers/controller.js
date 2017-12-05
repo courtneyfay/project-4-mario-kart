@@ -1,4 +1,6 @@
-/*
+let db = require('../models');
+let Scores = db.models.Scores;
+
 let scores = [
 	{
 		"id": 1,
@@ -25,7 +27,6 @@ let scores = [
 		"score": 27
 	}
 ];
-*/
 
 homePage = (req, res) => {
 	console.log("WORKING: serving up mario kart");
@@ -34,7 +35,11 @@ homePage = (req, res) => {
 
 indexScores = (req, res) => {
 	console.log("WORKING: serving up high scores");
-	res.render("partials/scores.ejs", {scores: scores});
+	Scores.findAll()
+		.then(function(scores) {
+			console.log(scores);
+			res.render("partials/scores.ejs", {scores: scores});
+		});
 };
 
 showScore = (req, res) => {
