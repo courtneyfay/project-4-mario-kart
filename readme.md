@@ -12,24 +12,24 @@
 * HTML 
 * CSS
 * JavaScript
-* JQuery 
+* jQuery 
 
 ### Routing: 
-* Ajax
-* Express
+* AJAX
+* Express.js
 
 ### Back-end: 
 * Node.js
 * Sequelize
-* Postgres SQL
+* PostgreSQL
 
 -----------------------------
 ## The General Approach
 
 * Experimental, really bare bones just to start
 * Talked to Alex Creighton and Mark Klein from previous WDI cohorts, asked them for resources
-* Did some demos and fork and clone some existing repos to practice (three.js and physijs)
-* Figured out how to architect the three.js app using Node
+* Did some demos, and forked and cloned some existing repos to practice for both three.js and physijs engine
+* Researched how to architect the three.js app using Node.js (required for physijs)
 
 -----------------------------
 ## Installation instructions
