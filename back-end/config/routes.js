@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 router = express.Router();
 const controller = require('../controllers/controller.js');
 
-// game page -- get the three.js homepage
+// game page -- get the three.js game homepage
 router.get('/', controller.homePage);
 
 // SCORE routes

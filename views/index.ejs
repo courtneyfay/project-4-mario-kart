@@ -2,7 +2,12 @@
 <html>
 <head>
 	<title>Mario Kart three.js</title>
+	<!-- STYLESHEETS -->
 	<link rel = "stylesheet" type = "text/css" href = "styles/demo.css" />
+
+	<!-- SCRIPTS BEFORE THE PAGE LOADS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+	<script src="scripts/ajax.js"></script>
 </head>
 <body>
 	<div id="MarioKart"></div>
@@ -12,11 +17,10 @@
 		<div id="game-over"></div>
 	</div>
 	
-	<script src="scripts/three.js"></script>
+	<!-- SCRIPTS AFTER THE PAGE LOADS -->
+	<script src="scripts/controls/three.js"></script>
 	<script src="scripts/controls/OrbitControls.js"></script>
 	<script src="scripts/controls/physi.js"></script>
-
-	<!-- Version with Physijs -->
 	<script src="scripts/index.js"></script>
 </body>
 </html>

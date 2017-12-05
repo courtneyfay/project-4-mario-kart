@@ -29,6 +29,7 @@ createScene();
 animate();
 
 function createScene(){
+
 	// sets the renderer
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	sceneWidth = window.innerWidth - shrinkScreenSize;
@@ -332,6 +333,9 @@ function gameOver() {
   let arrows = document.getElementById("arrows");
   arrows.parentNode.removeChild(arrows);
   console.log(raceClock.getElapsedTime()); 	//timer.textContent);
+  $.getScript('/scripts/ajax.js', function() {
+		indexScores();
+	});
 }
 
 function handler(e) {
