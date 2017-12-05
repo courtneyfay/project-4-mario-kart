@@ -4,8 +4,9 @@ const bodyParser = require('body-parser');
 const routes = require('./back-end/config/routes.js');
 
 // MIDDLEWARE
-app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(express.static(__dirname + '/public'));
 
 //SET UP EJS
 app.set('views', __dirname + '/views');

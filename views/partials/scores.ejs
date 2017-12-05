@@ -1,7 +1,9 @@
 <!-- dynamically display name, time, score -->
 
+<h1 class="high-scores">High Scores:</h1>
+
 <% if (scores) { %>
 	<% for (let i = 0; i < scores.length; i++) { %>
-		<li><%= scores[i].name %></li>
+		<p class="high-scores"><%= scores[i].name %> -- <%= scores[i].time %> -- <%= scores[i].score %></p>
 	<% } %>
 <% } %>

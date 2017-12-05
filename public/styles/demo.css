@@ -44,10 +44,19 @@ canvas {
 	color: white;
 	display: inline;
 	font-size: 25px;
+	left: 23%;
 	margin: 0 auto;
 	position: absolute;
 	text-align: center;
 	top: 30%;
-	width: 99%;
+	width: 50%;
 	z-index: 100;
 }
+
+.high-scores {
+	background-color: black;
+}
+
+/*p {
+	display: inline;
+}*/

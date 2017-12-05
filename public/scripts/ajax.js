@@ -1,20 +1,33 @@
 // $(document).ready(function(){
 
 function indexScores() {
-  console.log("hitting index Scores ajax route!");
+  // console.log("hitting indexScores ajax route!");
   $.ajax({
     url: "/scores",
     type: "GET",
-    dataType: 'json',
-    success: function (data) { 
-      console.log(data);  
-      $('#game-scores').html(data);    
-      // $('#game-scores').html(data);
+    // dataType: 'json', //throwing an error when you return rendered HTML
+    success: function (data) {   
+      $('#game-scores').html(data);  
     },
     error: function(err) {
-      console.log(err);
+      console.log(err); 
     } 
   });
 }
   
+function createScore(raceData) {
+  // console.log("hitting createScore ajax route!");
+  $.ajax({
+    url: "/scores",
+    type: "POST",
+    data: raceData, 
+    success: function (data) {
+      console.log(data);
+    },
+    error: function(err) { 
+      console.log(err);
+    } 
+  });
+}
+
 // });

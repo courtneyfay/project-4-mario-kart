@@ -31,7 +31,7 @@ animate();
 function createScene(){
 
 	// remove scores from div
-	document.getElementById('game-scores').textContent = "";
+	// document.getElementById('game-scores').textContent = "";
 
 	// sets the renderer
 	renderer = new THREE.WebGLRenderer({antialias: true});
@@ -343,7 +343,6 @@ function stopGame() {
 }
 
 function getHighScores() {
-	console.log("hitting getHighScores function!");
 	gameoverHTML.textContent = "GAME OVER!";
 	$.getScript('/scripts/ajax.js', function() {
 		indexScores();
@@ -351,18 +350,26 @@ function getHighScores() {
 }
 
 function saveScore() {
-	console.log("hitting saveScore function!");
 	/*
+	Points system:
 	10 seconds - 50 points
 	20 seconds - 40 points
 	30 seconds - 30 points
 	40 seconds - 20 points
 	50 seconds - 10 points
-
-	start with 50 points
-	deduct 1 point per extra second
 	*/
-	console.log(raceClock.getElapsedTime()); 	//timer.textContent);
+	let finalTime = raceClock.getElapsedTime();
+
+	let finalScore = 60 - (Math.round(finalTime) * 1);
+
+	let finalData = {
+		time: finalTime,
+		score: finalScore
+	};
+
+	$.getScript('/scripts/ajax.js', function() {
+		createScore(finalData);
+	});
 }
 
 function handler(e) {

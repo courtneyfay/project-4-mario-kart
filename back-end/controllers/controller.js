@@ -3,53 +3,58 @@ let scores = [
 		"id": 1,
 		"name": "CFAY",
 		"time": 32.21790500000001,
-		"score": 2005
+		"score": 28
 	},
 	{
 		"id": 2,
 		"name": "Courttt",
 		"time": 16.09966500000001,
-		"score": 3000
+		"score": 44
 	},
 	{
 		"id": 3,
 		"name": "Courtney",
 		"time": 50.57282934789999,
-		"score": 500
+		"score": 9
 	},
 	{
 		"id": 4,
 		"name": "Big C",
-		"time": 32.36929999999991,
-		"score": 1995
+		"time": 32.56929999999991,
+		"score": 27
 	}
 ];
 
 homePage = (req, res) => {
-	console.log("serving up mario kart");
-	res.render("index.ejs", {scores: scores}); 
+	console.log("WORKING: serving up mario kart");
+	res.render("index.ejs");  
 };
 
 indexScores = (req, res) => {
 	console.log("WORKING: serving up high scores");
-	res.json(scores);
+	res.render("partials/scores.ejs", {scores: scores});
 };
 
 showScore = (req, res) => {
-	console.log("WORKING: serving up 1 high score");
+	console.log("NOT USING: serving up 1 high score");
 	id = req.params.id - 1;
 	res.json(scores[id]);
 };
 
 createScore = (req, res) => {
-	console.log("creating a new score");
-	let newScore = req.body;
+	console.log("WORKING: creating a new score");
+	let newScore = {
+		id: 5,
+		name: "Court",
+		time: req.body.time,
+		score: req.body.score
+	};
 	scores.push(newScore);
 	res.json(newScore);
 };
 
 updateScore = (req, res) => {
-	console.log("updating an old score");
+	console.log("NOT TESTED: updating an old score");
 	id = req.params.id - 1;
 	for (let i = 0; i < scores.length; i++) {
 		if(scores[i].id === id) {
@@ -61,7 +66,7 @@ updateScore = (req, res) => {
 };
 
 deleteScore = (req, res) => {
-	console.log("deleting an old score");
+	console.log("NOT TESTED: deleting an old score");
 	id = req.params.id - 1;
 	for (let i = 0; i < scores.length; i++) {
 		if(scores[i].id === id) {
