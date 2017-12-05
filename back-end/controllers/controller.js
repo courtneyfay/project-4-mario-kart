@@ -66,7 +66,6 @@ createScore = (req, res) => {
 	})
 	.then(function(score) {
 		if(!score) res.send("score not saved");
-		console.log(score);
 		res.json(score);
 	});
 };
