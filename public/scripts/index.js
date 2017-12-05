@@ -180,13 +180,13 @@ function createScene(){
 	let cubeGeometry = new THREE.BoxGeometry(1,1,1);
 	let cubeMaterial = Physijs.createMaterial(
 		new THREE.MeshLambertMaterial({color: 0xE50009}), // Mario red
-		0.8, // highest friction
-		0.4  // medium restitution
+		0.8, // high friction
+		0.3  // medium restitution
 	);
 	cube = new Physijs.BoxMesh(
 		cubeGeometry, 
 		cubeMaterial,
-		1000  // mass
+		100  // mass
 	);
 	cube.castShadow = true;
 	cube.receiveShadow = true;
