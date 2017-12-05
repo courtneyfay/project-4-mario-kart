@@ -31,11 +31,11 @@ canvas {
 #game-over {
 	color: red;
 	display: inline;
-	font-size: 200px;
+	font-size: 100px;
 	margin: 0 auto;
 	position: absolute;
 	text-align: center;
-	top: 15%;
+	top: 10%;
 	width: 99%;
 	z-index: 100;
 }

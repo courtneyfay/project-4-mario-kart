@@ -21,6 +21,7 @@ let minimapCamera;
 let minimapWidth = 240; 
 let minimapHeight = 160; // w/h should match div dimensions
 let gameoverHTML = document.getElementById("game-over");
+let gameOverBoolean = false;
 
 // sets up the scene, camera, renderer and 3D objects
 createScene();
@@ -239,42 +240,46 @@ function createScene(){
 }
 
 function animate() {
-	requestAnimationFrame(animate);
+	requestAnimationFrame(animate); 
 	render();
 	update();
 }
 
 function render() {
-	let sceneWidth = window.innerWidth;
-	let sceneHeight = window.innerHeight;
-	
-	// setViewport parameters: lower_left_x, lower_left_y, viewport_width, viewport_height
-	renderer.setViewport(0, 0, sceneWidth, sceneHeight);
-	renderer.clear();
+	if (gameOverBoolean !== true) {
+		let sceneWidth = window.innerWidth;
+		let sceneHeight = window.innerHeight;
 
-	// full display
-	renderer.render(scene, perspectiveCamera);
+		// setViewport parameters: lower_left_x, lower_left_y, viewport_width, viewport_height
+		renderer.setViewport(0, 0, sceneWidth, sceneHeight);
+		renderer.clear();
 
-	// minimap (overhead orthogonal camera): lower_left_x, lower_left_y, viewport_width, viewport_height
-	renderer.setViewport(-75, sceneHeight - minimapHeight - 20, minimapWidth, minimapHeight);
-	renderer.render(scene, minimapCamera);
+		// full display
+		renderer.render(scene, perspectiveCamera);
+
+		// minimap (overhead orthogonal camera): lower_left_x, lower_left_y, viewport_width, viewport_height
+		renderer.setViewport(-75, sceneHeight - minimapHeight - 20, minimapWidth, minimapHeight);
+		renderer.render(scene, minimapCamera);
+	}
 }
 
 function update() {
-	countdownBall = scene.children[9];
-	currentTime = countdownClock.getElapsedTime();
+	if (gameOverBoolean !== true) {
+		countdownBall = scene.children[9];
+		currentTime = countdownClock.getElapsedTime();
 
-	if (currentTime >= 4 && currentTime < 10.025) {
-		startCountdownClock(countdownBall, currentTime);
-	} else if (currentTime >= 10.025) {
-		checkWinner();
+		if (currentTime >= 4 && currentTime < 10.025) {
+			startCountdownClock(countdownBall, currentTime);
+		} else if (currentTime >= 10.025) {
+			checkWinner();
+		}
+
+		//perspectiveCamera.rotation.y += 0.001;
+
+		updateCameraPositionZ();
+		render();
+		scene.simulate();
 	}
-
-	//perspectiveCamera.rotation.y += 0.001;
-
-	updateCameraPositionZ();
-	render();
-	scene.simulate();
 }
 
 function startCountdownClock(countdownBall, currentTime) {
@@ -306,22 +311,27 @@ function startCountdownClock(countdownBall, currentTime) {
 
 function checkWinner() {
 	if (cube.position.z <= finishLineDistance) {
-		console.log("you made it to the finish line!");
+		// console.log("you made it to the finish line!");
 		gameOver();
 	} else {
 		// update the time on the race clock
 		updateTimer();
 		// after the countdown timer ends, you can start to move with the arrow keys
-		document.addEventListener('keydown', handler.bind(this), false);
+		document.addEventListener('keyup', handler.bind(this), false);
 	}
 }
 
 function gameOver() {
+	gameOverBoolean = true;
 	stopTimer();
 	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
   cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
-  //document.removeEventListener('keydown', handler.bind(this), false);
+  let onAnimationFrame = null;
+  //document.removeEventListener('keyup', handler.bind(this), false);
   gameoverHTML.textContent = "GAME OVER!";
+  let arrows = document.getElementById("arrows");
+  arrows.parentNode.removeChild(arrows);
+  console.log(raceClock.getElapsedTime()); 	//timer.textContent);
 }
 
 function handler(e) {
@@ -368,29 +378,31 @@ function stopTimer() {
 //let moveCube = function(e) {
 function moveCube(e) {
 	//console.log(e);
-	cube = scene.children[8];
-	// console.log("scene child");
-	// console.log(scene.children[8]);
-	// console.log("cube");
-	// console.log(cube);
+	if (gameOverBoolean !== true) {
+		cube = scene.children[8];
+		// console.log("scene child");
+		// console.log(scene.children[8]);
+		// console.log("cube");
+		// console.log(cube);
 
-	switch(e.keyCode) {
-		case 37: //left
-			vectorForce = new THREE.Vector3(-5,0,0);
-			cube.applyCentralImpulse(vectorForce);
-			break;
-		case 39: //right
-			vectorForce = new THREE.Vector3(5,0,0);
-			cube.applyCentralImpulse(vectorForce);
-			break;
-		case 38: //forward
-			// console.log(e);
-			// console.log(cube);
-			//console.log(Math.round(cube.position.z));
-			vectorForce = new THREE.Vector3(0,0,-10);
-			cube.applyCentralImpulse(vectorForce);
-			break;
-	}
+		switch(e.keyCode) {
+			case 37: //left
+				vectorForce = new THREE.Vector3(-5,0,0);
+				cube.applyCentralImpulse(vectorForce);
+				break;
+			case 39: //right
+				vectorForce = new THREE.Vector3(5,0,0);
+				cube.applyCentralImpulse(vectorForce);
+				break;
+			case 38: //forward
+				// console.log(e);
+				// console.log(cube);
+				//console.log(Math.round(cube.position.z));
+				vectorForce = new THREE.Vector3(0,0,-5);
+				cube.applyCentralImpulse(vectorForce);
+				break;
+		}
+	}	
 }
 
 function updateCameraPositionZ() {
