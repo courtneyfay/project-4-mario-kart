@@ -5,14 +5,23 @@
 -----------------------------
 ## Technologies Used
 
-### Front end: 
-three.js (WebGL), physijs, EJS, html, css, javascript, jquery 
+### Front-end: 
+* Three.js (based on WebGL)
+* Physijs engine for three.js
+* EJS
+* HTML 
+* CSS
+* JavaScript
+* JQuery 
 
 ### Routing: 
-Ajax, Express
+* Ajax
+* Express
 
-### Back end: 
-Node js, Sequelize, SQL
+### Back-end: 
+* Node.js
+* Sequelize
+* Postgres SQL
 
 -----------------------------
 ## The General Approach
@@ -26,23 +35,22 @@ Node js, Sequelize, SQL
 ## Installation instructions
 
 ### To play now
-```
 https://racecube.herokuapp.com/
-```
 
 ### To fork and clone from GitHub and run locally
-```
-npm install at the package.json level
-node back-end/db/dbSetup.js
-node back-end/db.seed.js
-nodemon server.js
-open up http://localhost:3000
-```
+
+* fork and clone from Github
+* cd into the code and npm install at the package.json level
+in Terminal:
+* type "node back-end/db/dbSetup.js"
+* type "node back-end/db.seed.js"
+* type "nodemon server.js"
+* open up http://localhost:3000 in your browser
 
 -----------------------------
-## User Stories on Trello
+## User Stories
 
-* https://trello.com/b/K5HMDpnF/project-4
+* [Trello](https://trello.com/b/K5HMDpnF/project-4)
 
 -----------------------------
 ## Todo List
