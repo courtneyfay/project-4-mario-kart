@@ -6,8 +6,10 @@ function indexScores() {
     url: "/scores",
     type: "GET",
     dataType: 'json',
-    success: function (data) {            
-      console.log(data);
+    success: function (data) { 
+      console.log(data);  
+      $('#game-scores').html(data);    
+      // $('#game-scores').html(data);
     },
     error: function(err) {
       console.log(err);

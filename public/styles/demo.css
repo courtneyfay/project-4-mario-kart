@@ -39,3 +39,15 @@ canvas {
 	width: 99%;
 	z-index: 100;
 }
+
+#game-scores {
+	color: white;
+	display: inline;
+	font-size: 25px;
+	margin: 0 auto;
+	position: absolute;
+	text-align: center;
+	top: 30%;
+	width: 99%;
+	z-index: 100;
+}

@@ -1,0 +1,7 @@
+<!-- dynamically display name, time, score -->
+
+<% if (scores) { %>
+	<% for (let i = 0; i < scores.length; i++) { %>
+		<li><%= scores[i].name %></li>
+	<% } %>
+<% } %>

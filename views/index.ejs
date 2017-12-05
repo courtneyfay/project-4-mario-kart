@@ -10,11 +10,18 @@
 	<script src="scripts/ajax.js"></script>
 </head>
 <body>
+	<!-- Three js scene -->
 	<div id="MarioKart"></div>
+	
+	<!-- game elements that are positioned on top of Mario Kart -->
 	<div id="game-elements">
 		<div id="timer"></div>
 		<img id="arrows" src="images/keys.png" alt="image of arrow keys">
+		<!-- hidden until the game ends -->
 		<div id="game-over"></div>
+		<div id="game-scores">
+			<% include ./partials/scores.ejs %>
+		</div>
 	</div>
 	
 	<!-- SCRIPTS AFTER THE PAGE LOADS -->

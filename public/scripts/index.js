@@ -30,6 +30,9 @@ animate();
 
 function createScene(){
 
+	// remove scores from div
+	document.getElementById('game-scores').textContent = "";
+
 	// sets the renderer
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	sceneWidth = window.innerWidth - shrinkScreenSize;
@@ -183,7 +186,7 @@ function createScene(){
 	cube = new Physijs.BoxMesh(
 		cubeGeometry, 
 		cubeMaterial,
-		1500  // mass
+		1000  // mass
 	);
 	cube.castShadow = true;
 	cube.receiveShadow = true;
@@ -318,24 +321,48 @@ function checkWinner() {
 		// update the time on the race clock
 		updateTimer();
 		// after the countdown timer ends, you can start to move with the arrow keys
-		document.addEventListener('keyup', handler.bind(this), false);
+		document.addEventListener('keydown', handler.bind(this), false);
 	}
 }
 
 function gameOver() {
 	gameOverBoolean = true;
 	stopTimer();
+	stopGame();
+  saveScore();
+  getHighScores();
+}
+
+function stopGame() {
 	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
   cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
   let onAnimationFrame = null;
-  //document.removeEventListener('keyup', handler.bind(this), false);
-  gameoverHTML.textContent = "GAME OVER!";
+  //document.removeEventListener('keydown', handler.bind(this), false);
   let arrows = document.getElementById("arrows");
   arrows.parentNode.removeChild(arrows);
-  console.log(raceClock.getElapsedTime()); 	//timer.textContent);
-  $.getScript('/scripts/ajax.js', function() {
+}
+
+function getHighScores() {
+	console.log("hitting getHighScores function!");
+	gameoverHTML.textContent = "GAME OVER!";
+	$.getScript('/scripts/ajax.js', function() {
 		indexScores();
 	});
+}
+
+function saveScore() {
+	console.log("hitting saveScore function!");
+	/*
+	10 seconds - 50 points
+	20 seconds - 40 points
+	30 seconds - 30 points
+	40 seconds - 20 points
+	50 seconds - 10 points
+
+	start with 50 points
+	deduct 1 point per extra second
+	*/
+	console.log(raceClock.getElapsedTime()); 	//timer.textContent);
 }
 
 function handler(e) {

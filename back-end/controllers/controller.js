@@ -3,20 +3,31 @@ let scores = [
 		"id": 1,
 		"name": "CFAY",
 		"time": 32.21790500000001,
-		"score": 1200
+		"score": 2005
 	},
 	{
 		"id": 2,
-		"name": "Court",
-		"time": 16.099,
-		"score": 1600
+		"name": "Courttt",
+		"time": 16.09966500000001,
+		"score": 3000
+	},
+	{
+		"id": 3,
+		"name": "Courtney",
+		"time": 50.57282934789999,
+		"score": 500
+	},
+	{
+		"id": 4,
+		"name": "Big C",
+		"time": 32.36929999999991,
+		"score": 1995
 	}
 ];
 
 homePage = (req, res) => {
 	console.log("serving up mario kart");
-	// res.send("oh haiiii");
-	res.render("index.ejs");
+	res.render("index.ejs", {scores: scores}); 
 };
 
 indexScores = (req, res) => {
