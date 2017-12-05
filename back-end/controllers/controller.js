@@ -1,3 +1,4 @@
+/*
 let scores = [
 	{
 		"id": 1,
@@ -24,6 +25,7 @@ let scores = [
 		"score": 27
 	}
 ];
+*/
 
 homePage = (req, res) => {
 	console.log("WORKING: serving up mario kart");
@@ -36,7 +38,7 @@ indexScores = (req, res) => {
 };
 
 showScore = (req, res) => {
-	console.log("NOT USING: serving up 1 high score");
+	console.log("NOT TESTED: serving up 1 high score");
 	id = req.params.id - 1;
 	res.json(scores[id]);
 };
