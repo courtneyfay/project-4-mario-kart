@@ -22,11 +22,19 @@ let minimapWidth = 240;
 let minimapHeight = 160; // w/h should match div dimensions
 let gameoverHTML = document.getElementById("game-over");
 let gameOverBoolean = false;
+let audioPlayer = document.getElementsByTagName('audio')[0];
+let endOfCountdown = 11.775;
+
+/*
+
+*/
 
 // sets up the scene, camera, renderer and 3D objects
 createScene();
 // calls game loop/animations
 animate();
+// adds audio
+audioPlayer.play();
 
 function createScene(){
 
@@ -250,7 +258,9 @@ function animate() {
 }
 
 function render() {
+
 	if (gameOverBoolean !== true) {
+
 		let sceneWidth = window.innerWidth;
 		let sceneHeight = window.innerHeight;
 
@@ -272,9 +282,9 @@ function update() {
 		countdownBall = scene.children[9];
 		currentTime = countdownClock.getElapsedTime();
 
-		if (currentTime >= 4 && currentTime < 10.025) {
+		if (currentTime >= 4 && currentTime < endOfCountdown) {
 			startCountdownClock(countdownBall, currentTime);
-		} else if (currentTime >= 10.025) {
+		} else if (currentTime >= endOfCountdown) {
 			checkWinner();
 		}
 
@@ -288,27 +298,33 @@ function update() {
 
 function startCountdownClock(countdownBall, currentTime) {
 	
-	if (currentTime >= 4 && currentTime < 10.025) {
+	if (currentTime >= 4 && currentTime < endOfCountdown) {
 		// wait for 4 seconds after game loads to make countdown ball appear
 		countdownBall.material.color.setHex(0x000000);
 		countdownBall.material.opacity = 0.75; 
 
-		if (currentTime >= 7 && currentTime < 8) {
+		if (currentTime >= 8 && currentTime < 9.25) {
 			//stoplight starts at red
 			countdownBall.material.color.setHex(0xff0000); 
-		} else if (currentTime >= 8 && currentTime < 9) {
+		} else if (currentTime >= 9.25 && currentTime < 10.5) {
 			//stoplight changes to yellow
 			countdownBall.material.color.setHex(0xffff00); 
-		} else if (currentTime >= 9 && currentTime < 10) {
+		} else if (currentTime >= 10.5 && currentTime < 11.75) {
 			//stoplight ends at green
 			countdownBall.material.color.setHex(0x00ff00); 
-		} else if (currentTime >=10 && currentTime < 10.025) {
+		} else if (currentTime >= 11.75 && currentTime < endOfCountdown) {
 			// remove countdown timer
 			console.log("trying to remove the countdownBall again");
 			scene.remove(countdownBall);
 			
 			// after the countdown timer ends, start the race timer
 			startTimer();
+
+			// change the music so that it plays the race sounds
+			audioPlayer.src = "audio/race_music_1.mp3";
+			audioPlayer.load();
+			audioPlayer.loop = true;
+			audioPlayer.play();
 		}
 	} 
 }
@@ -327,6 +343,12 @@ function checkWinner() {
 
 function gameOver() {
 	gameOverBoolean = true;
+	// change the music so that it plays the game-over sounds
+	audioPlayer.src = "audio/end_of_race.mp3";
+	audioPlayer.loop = false;
+	audioPlayer.load();
+	audioPlayer.play();
+
 	stopTimer();
 	stopGame();
   saveScore();
@@ -457,277 +479,3 @@ function onWindowResize() {
 	perspectiveCamera.aspect = sceneWidth / sceneHeight;
 	perspectiveCamera.updateProjectionMatrix();
 }
-
-///////////////////////////////
-////////// GRAVEYARD //////////
-///////////////////////////////
-
-// raceClock timer
-//"00 '00 \"00";
-// rawMilliseconds = Math.round(rawTime * 100) / 100;
-// stringMilliseconds = rawMilliseconds.toString();
-// milliseconds = stringMilliseconds.substring(stringMilliseconds.indexOf(".") + 1);
-// updatedTime = milliseconds;
-
-/*for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
-{		
-	var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
-	var globalVertex = localVertex.applyMatrix4( MovingCube.matrix );
-	var directionVector = globalVertex.sub( MovingCube.position );
-	
-	var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
-	var collisionResults = ray.intersectObjects( collidableMeshList );
-	if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
-		appendText(" Hit ");
-}	*/
-
-/*
-// creates starting line and adds to scene
-let startingLineMaterial = new THREE.LineBasicMaterial({color: 0xffffff}); // white starting line
-let startingLineGeometry = new THREE.Geometry();
-	startingLineGeometry.vertices.push(new THREE.Vector3(-5.5, 0, 0)); // x y z
-	startingLineGeometry.vertices.push(new THREE.Vector3(5.5, 0, 0)); // x y z
-let startingLine = new THREE.LineSegments(startingLineGeometry, startingLineMaterial);
-startingLine.position.z = -5;
-startingLine.position.y = -1;
-scene.add(startingLine);
-*/
-
-// let materialFront = new THREE.MeshBasicMaterial({color: 0xff0000});
-	// let materialSide = new THREE.MeshBasicMaterial({color: 0x000088});
-	// let numberMaterial = [materialFront, materialSide];
-	// let numberMaterial = new THREE.MeshFaceMaterial(materialArray);
-	// let numberThreeGeometry = new THREE.TextGeometry(
-	// 	"3",
-	// 	{
-	// 		size: 30, 
-	// 		height: 4, 
-	// 		curveSegments: 3,
-	// 		font: "helvetiker", // or gentilis, droid sans, droid serif, optimer
-	// 		weight: "bold", // or normal
-	// 		style: "normal",
-	// 		bevelThickness: 1,
-	// 		bevelSize: 2, 
-	// 		bevelEnabled: true,
-	// 		material: 0,
-	// 		extrudeMaterial: 1
-	// 	}
-	// );
-
-	// let numberThree = new THREE.Mesh(numberThreeGeometry, numberMaterial);
-	
-	// numberThreeGeometry.computeBoundingBox();
-	// let numberWidth = numberThreeGeometry.boundingBox.max.x - numberThreeGeometry.boundingBox.min.x;
-
-	// numberThree.position.set(-0.5 * numberWidth, 50, 100);
-	// numberThree.rotation.x = -Math.PI / 4;
-	// scene.add(numberThree);
-
-/*
-fontLoader.load("public/styles/fonts/helvetiker_regular.typeface.json", function(font) {
-
-		let textGeometry = new THREE.TextGeometry("Hello three.js!", 
-			{
-				font: 'Helvetiker',
-				
-				size: 80,
-				height: 5,
-				curveSegments: 12,
-				
-				bevelEnabled: true,
-				bevelThickness: 10,
-				bevelSize: 8,
-				bevelSegments: 5
-			}
-		);
-
-		textGeometry.computeBoundingBox();
-		let centerOffset = -0.5 * (textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x);
-
-		let textMaterial = new THREE.MeshPhongMaterial({color: 0xff0000, specular: 0xffffff });
-
-		let text = new THREE.Mesh(textGeometry, textMaterial);
-		text.position.x(centerOffset);
-		text.position.y = FLOOR + 67;
-
-		text.castShadow = true;
-		text.receiveShadow = true;
-
-		scene.add(text);
-
-});
-*/
-
-/*document.addEventListener('keyup', function(e) {
-		switch(e.keyCode) {
-			case 37: //left
-				console.log('keyup: moving left!'); 
-				break;
-			case 39: //right
-				console.log('keyup: moving right!');
-				break;
-			case 38: //up
-				console.log('keyup: moving up!');
-				break;
-			case 40: //down
-				console.log('keyup: moving down!');
-				break;
-		}
-	});*/
-
-// vectorOffset = new THREE.Vector3(-10,0,0);
-// cube.applyForce(vectorForce, vectorOffset);	
-
-// adding constraints to try to get car physics logic to work
-	/*cube_constraint = new Physijs.DOFConstraint(
-		cube, 																// object A - cube
-		cube, 																// object B - cube
-		new THREE.Vector3(0, 0, 0)						// position - new vector
-	);
-	scene.addConstraint(cube_constraint);*/
-
-// adding logic to try to get box physics to work
-				// let strength = 35; 
-				// let distance = 50;
-				// let effect = mouse_position.clone().sub( cube.position ).normalize().multiplyScalar( strength / distance ).negate();
-				// let offset = mouse_position.clone().sub( cube.position );
-				
-				// trying to get car constraints physics to work
-				/*cube_constraint.configureAngularMotor(
-					1, 							// which
-					-Math.PI / 2, 	// low_angle
-					Math.PI / 2, 		// high_angle
-					1, 							// velocity
-					200							// max_force
-				);
-				cube_constraint.enableAngularMotor(1); //which*/
-
-// TRY WHEN YOU WANT TO ADD TEXTURES INSTEAD OF JUST COLORS
-// Loader
-/*loader = new THREE.TextureLoader();
-
-// Materials
-ground_material = Physijs.createMaterial(
-	new THREE.MeshLambertMaterial({ map: loader.load( 'images/rocks.jpg' ) }),
-	.8, // high friction
-	.4 // low restitution
-);
-ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
-ground_material.map.repeat.set( 3, 3 );
-
-// Ground
-ground = new Physijs.BoxMesh(
-	new THREE.BoxGeometry(100, 1, 100),
-	ground_material,
-	0 // mass
-);
-ground.receiveShadow = true;
-scene.add( ground );*/
-
-// playing with the Jenga event handlers
-// handleMouseDown
-	/*document.addEventListener('mousedown', function(evt) {
-		var ray, intersections;
-		
-		_vector.set(
-			( evt.clientX / window.innerWidth ) * 2 - 1,
-			-( evt.clientY / window.innerHeight ) * 2 + 1,
-			1
-		);
-		_vector.unproject( camera );
-		
-		ray = new THREE.Raycaster( camera.position, _vector.sub( camera.position ).normalize() );
-		intersections = ray.intersectObjects( blocks );
-		if ( intersections.length > 0 ) {
-			selected_block = intersections[0].object;
-			
-			_vector.set( 0, 0, 0 );
-			selected_block.setAngularFactor( _vector );
-			selected_block.setAngularVelocity( _vector );
-			selected_block.setLinearFactor( _vector );
-			selected_block.setLinearVelocity( _vector );
-			mouse_position.copy( intersections[0].point );
-			block_offset.subVectors( selected_block.position, mouse_position );
-			
-			intersect_plane.position.y = mouse_position.y;
-		}
-	});
-	
-	// handleMouseMove
-	document.addEventListener('mousemove', function(evt) {
-		var ray, intersection,
-			i, scalar;
-		
-		if ( selected_block !== null ) {
-			
-			_vector.set(
-				( evt.clientX / window.innerWidth ) * 2 - 1,
-				-( evt.clientY / window.innerHeight ) * 2 + 1,
-				1
-			);
-			_vector.unproject( camera );
-			
-			ray = new THREE.Raycaster( camera.position, _vector.sub( camera.position ).normalize() );
-			intersection = ray.intersectObject( intersect_plane );
-			mouse_position.copy( intersection[0].point );
-		}	
-	});
-	
-	// handleMouseUp
-	document.addEventListener('mouseup', function(evt) {
-		if ( selected_block !== null ) {
-			_vector.set( 1, 1, 1 );
-			selected_block.setAngularFactor( _vector );
-			selected_block.setLinearFactor( _vector );
-			
-			selected_block = null;
-		}
-	});*/
-
-// creates starting line banner and adds to scene
-// let poleGeometry = new THREE.CylinderGeometry(5, 5, 20, 32);
-// let poleMaterial = new THREE.MeshBasicMaterial({color: 0xffff00});
-// let pole = new THREE.Mesh(poleGeometry, poleMaterial);
-// pole.position.y = 10;
-// scene.add(pole);
-
-// creates sky and adds to scene -- not working
-// let skyGeometry = new THREE.SphereGeometry(100000, 25, 25); 
-// let loader  = new THREE.TextureLoader();
-// loader.setCrossOrigin("");
-// texture = loader.load("./images/sky2.jpeg");
-// let material = new THREE.MeshPhongMaterial({map: texture});
-// let sky = new THREE.Mesh(skyGeometry, material);
-// sky.material.side = THREE.BackSide;
-// scene.add(sky);
-// let textureLoader = new THREE.TextureLoader();
-// 	textureLoader.crossOrigin = '';
-// 	let sky = textureLoader.load("./public/images/sky2.jpeg");
-// 	console.log(textureLoader);
-// 	sky.wrapS = THREE.RepeatWrapping;
-// 	sky.wrapT = THREE.RepeatWrapping;
-// 	sky.repeat.set(4, 4);
-// 	scene.background = new THREE.Texture(sky);
-
-// point light: alternative to directional light
-// let light = new THREE.PointLight(0xffffff);
-// light.position.set(10,10,10);
-// scene.add(light);
-// enables you to see the light cone from the point light
-// let pointLightHelper = new THREE.PointLightHelper(pointLight, 1);
-// scene.add(pointLightHelper);
-
-/*if ( selected_block !== null ) {
-					
-					_v3.copy( mouse_position ).add( block_offset ).sub( selected_block.position ).multiplyScalar( 5 );
-					_v3.y = 0;
-					selected_block.setLinearVelocity( _v3 );
-					
-					// Reactivate all of the blocks
-					_v3.set( 0, 0, 0 );
-					for ( _i = 0; _i < blocks.length; _i++ ) {
-						blocks[_i].applyCentralImpulse( _v3 );
-					}
-				}*/
-
-

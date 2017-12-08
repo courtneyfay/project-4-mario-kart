@@ -22,6 +22,7 @@
     "body-parser": "^1.18.2",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
+    "nodemon": "^1.12.5",
     "pg": "^7.4.0",
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.26.0"

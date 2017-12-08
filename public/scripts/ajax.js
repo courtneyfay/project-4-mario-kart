@@ -1,5 +1,3 @@
-// $(document).ready(function(){
-
 function indexScores() {
   // console.log("hitting indexScores ajax route!");
   $.ajax({
@@ -29,5 +27,3 @@ function createScore(raceData) {
     } 
   });
 }
-
-// });
