@@ -126,8 +126,16 @@ function createScene(){
 	let racetrackWidth = 11;
 	let racetrackHeight = 1600;
 	let racetrackGeometry = new THREE.PlaneGeometry(racetrackWidth, racetrackHeight);
+	let racetrackTexture = new THREE.TextureLoader().load('images/road.jpg');
+	racetrackTexture.wrapT = racetrackTexture.wrapS = THREE.RepeatWrapping;
+	racetrackTexture.repeat.set(1, 40);
+	/*
+	crateTexture.wrapS = crateTexture.wrapT = THREE.RepeatWrapping;
+	crateTexture.repeat.set( 5, 5 );
+	*/
 	let racetrackMaterial = Physijs.createMaterial(
-		new THREE.MeshLambertMaterial({color: 0x576259}), //asphalt grey
+		new THREE.MeshBasicMaterial({map: racetrackTexture}),
+		//new THREE.MeshLambertMaterial({color: 0x576259}), //asphalt grey
 		0.8,  // high friction
 		0.4		// low restitution
 	);
