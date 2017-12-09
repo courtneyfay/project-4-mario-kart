@@ -57,12 +57,24 @@ function createScene(){
 	scene.addEventListener(
 		'update',
 		function() {
-			scene.simulate(undefined,2);
+			scene.simulate(undefined, 2);
 		}
 	);
-	
-	// creates sky blue color and adds to the scene
-	//scene.background = new THREE.Color(0x90A2C5); //skyblue	
+
+	// adds skybox to the scene
+	let path = "images/skybox/";
+	let format = ".png";
+	let urls = [
+		path + 'sky-xpos' + format, 
+		path + 'sky-xneg' + format, 
+		path + 'sky-ypos' + format, 
+		path + 'sky-yneg' + format, 
+		path + 'sky-zpos' + format, 
+		path + 'sky-zneg' + format
+	];
+	skyBoxTexture = new THREE.CubeTextureLoader().load(urls);
+	skyBoxTexture.minFilter = THREE.LinearFilter;
+	scene.background = skyBoxTexture;
 
 	// sets up a game clock to start the countdown
 	countdownClock = new THREE.Clock();
@@ -129,10 +141,6 @@ function createScene(){
 	let racetrackTexture = new THREE.TextureLoader().load('images/road.jpg');
 	racetrackTexture.wrapT = racetrackTexture.wrapS = THREE.RepeatWrapping;
 	racetrackTexture.repeat.set(1, 40);
-	/*
-	crateTexture.wrapS = crateTexture.wrapT = THREE.RepeatWrapping;
-	crateTexture.repeat.set( 5, 5 );
-	*/
 	let racetrackMaterial = Physijs.createMaterial(
 		new THREE.MeshBasicMaterial({map: racetrackTexture}),
 		//new THREE.MeshLambertMaterial({color: 0x576259}), //asphalt grey
@@ -232,12 +240,12 @@ function createScene(){
 	// scene.add(perspectiveCameraHelper);
 
 	// minimapCamera helper
-	// let minimapCameraHelper = new THREE.CameraHelper(minimapCamera);
-	// scene.add(minimapCameraHelper);
+	//let minimapCameraHelper = new THREE.CameraHelper(minimapCamera);
+	//scene.add(minimapCameraHelper);
 
 	// enables you to visualize the x y and z axes
-	// let axesHelper = new THREE.AxesHelper(100);
-	// scene.add(axesHelper);
+	//let axesHelper = new THREE.AxesHelper(100);
+	//scene.add(axesHelper);
 
 	// enables you to visualize the grid
 	// let size = 1000;
@@ -247,8 +255,8 @@ function createScene(){
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	// orbitControls = new THREE.OrbitControls(perspectiveCamera); //renderer.domElement
-	// orbitControls.enableZoom = true;
+	//orbitControls = new THREE.OrbitControls(perspectiveCamera); //renderer.domElement
+	//orbitControls.enableZoom = true;
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
