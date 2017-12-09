@@ -25,10 +25,6 @@ let gameOverBoolean = false;
 let audioPlayer = document.getElementsByTagName('audio')[0];
 let endOfCountdown = 11.775;
 
-/*
-
-*/
-
 // sets up the scene, camera, renderer and 3D objects
 createScene();
 // calls game loop/animations
@@ -205,23 +201,27 @@ function createScene(){
 	scene.add(finishLine);
 
 	// 8: creates racecube and adds to scene
-	let cubeGeometry = new THREE.BoxGeometry(1,1,1);
-	let cubeMaterial = Physijs.createMaterial(
-		new THREE.MeshLambertMaterial({color: 0xE50009}), // Mario red
-		0.8, // high friction
-		0.3  // medium restitution
-	);
-	cube = new Physijs.BoxMesh(
-		cubeGeometry, 
-		cubeMaterial,
-		100  // mass
-	);
-	cube.castShadow = true;
-	cube.receiveShadow = true;
-	cube.position.y = -0.5;
-	cube.position.z = 780;
-	scene.add(cube);
+	// let cubeGeometry = new THREE.BoxGeometry(1,1,1);
+	// let cubeMaterial = Physijs.createMaterial(
+	// 	new THREE.MeshLambertMaterial({color: 0xE50009}), // Mario red
+	// 	0.8, // high friction
+	// 	0.3  // medium restitution
+	// );
+	// cube = new Physijs.BoxMesh(
+	// 	cubeGeometry, 
+	// 	cubeMaterial,
+	// 	100  // mass
+	// );
+	// cube.castShadow = true;
+	// cube.receiveShadow = true;
+	// cube.position.y = -0.5;
+	// cube.position.z = 780;
+	// scene.add(cube);
 	// cube.add(perspectiveCamera);
+	let objectLoader = new THREE.ObjectLoader();
+	objectLoader.load("models/mario.json", function(cube) {
+    scene.add(cube);
+	});
 	
 	// 9: countdown ball
 	// starts invisible
@@ -269,6 +269,18 @@ function createScene(){
 	renderer.setSize(sceneWidth, sceneHeight);
 	renderer.setClearColor(0x000000, 1);
 	renderer.autoClear = false;
+}
+
+function addModelToScene( geometry, materials ) 
+{
+	var cubeMaterial = new THREE.MeshFaceMaterial( materials );
+	cube = new THREE.Mesh( geometry, material );
+	cube.scale.set(10,10,10);
+	cube.castShadow = true;
+	cube.receiveShadow = true;
+	cube.position.y = -0.5;
+	cube.position.z = 780;
+	scene.add(cube);
 }
 
 function animate() {
@@ -486,6 +498,7 @@ function moveCube(e) {
 }
 
 function updateCameraPositionZ() {
+	// console.log(cube.position.z);
 	perspectiveCamera.position.z = cube.position.z + 10;
 	// let lightPosition = cube.position.z + 5;
 	// light.position.set(3, 6, lightPosition); 
