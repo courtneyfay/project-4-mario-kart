@@ -119,8 +119,12 @@ function createScene(){
 	let grassWidth = 100;
 	let grassLength = 1600;
 	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
+	let grassTexture = new THREE.TextureLoader().load('images/grass.jpg');
+	grassTexture.wrapT = grassTexture.wrapS = THREE.RepeatWrapping;
+	grassTexture.repeat.set(17, 70);
 	let grassMaterial = Physijs.createMaterial(
-		new THREE.MeshStandardMaterial({color: 'green'}),
+		new THREE.MeshBasicMaterial({map: grassTexture}),
+		//new THREE.MeshStandardMaterial({color: 'green'}),
 		1.0, // highest friction
 		0.4  // lowest restitution
 	);
@@ -255,8 +259,8 @@ function createScene(){
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	//orbitControls = new THREE.OrbitControls(perspectiveCamera); //renderer.domElement
-	//orbitControls.enableZoom = true;
+	orbitControls = new THREE.OrbitControls(perspectiveCamera); //renderer.domElement
+	orbitControls.enableZoom = true;
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
