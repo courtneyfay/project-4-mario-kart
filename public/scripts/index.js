@@ -82,9 +82,11 @@ function createScene(){
     window.innerHeight / 2,			// Top
     window.innerHeight / -2,		// Bottom
     -5000,            					// Near 
-    10000);           					// Far 
+    10000												// Far 
+  );           					
 	minimapCamera.up = new THREE.Vector3(0,0,-1);
 	minimapCamera.lookAt(new THREE.Vector3(0,-1,0));
+	minimapCamera.name = "minimapCamera";
 	scene.add(minimapCamera);
 
 	// 1: sets the perspective camera and its position
@@ -93,13 +95,15 @@ function createScene(){
   let near = 1;
   let far = 1000; //2000
 	perspectiveCamera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	perspectiveCamera.position.set(0, 2, 10); //(0, 0, 100); // x y z
+	perspectiveCamera.position.set(0, 0, 790); //x = 0, y = 2 //(0, 0, 100); // x y z
 	perspectiveCamera.lookAt(scene.position);
+	perspectiveCamera.name = "perspectiveCamera"; 
 	scene.add(perspectiveCamera);
 
 	// 2: sets ambient light
-	let ambient = new THREE.AmbientLight(0xFFFFFF, 0.5);
-	scene.add(ambient);
+	let ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+	ambientLight.name = "ambientLight";
+	scene.add(ambientLight);
 
 	// 3: sets sunlight with directional lighting effects
 	light = new THREE.DirectionalLight(0xFFFFFF, 0.8); 
@@ -109,6 +113,7 @@ function createScene(){
 	light.shadow.mapSize.height = 256;
 	light.shadow.camera.near = 0.5;
 	light.shadow.camera.far = 50;
+	light.name = "light"; 
 	scene.add(light);
 
 	// 4: creates green grass color and adds to scene
@@ -132,6 +137,7 @@ function createScene(){
 	grass.rotation.x = -Math.PI / 2;
 	grass.position.y = -1.1;
 	grass.receiveShadow = true;
+	grass.name = "grass";
 	scene.add(grass);
 
 	// 5: creates grey racetrack color and adds to scene
@@ -156,6 +162,7 @@ function createScene(){
 	racetrack.castShadow = false;
 	racetrack.rotation.x = -Math.PI / 2;
 	racetrack.position.y = -1;
+	racetrack.name = "racetrack";
 	scene.add(racetrack);
 
 	// 6: creates startingLine plane and adds to scene
@@ -177,6 +184,7 @@ function createScene(){
 	startingLine.rotation.x = -Math.PI / 2;
 	startingLine.position.y = -0.999;
 	startingLine.position.z = 775;
+	startingLine.name = "startingLine";
 	scene.add(startingLine);
 
 	// 7: creates finishLine plane and adds to scene
@@ -198,71 +206,63 @@ function createScene(){
 	finishLine.rotation.x = -Math.PI / 2;
 	finishLine.position.y = -0.99;
 	finishLine.position.z = finishLineDistance;
+	finishLine.name = "finishLine";
 	scene.add(finishLine);
 
 	// 8: countdown ball
-	// starts invisible
-	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
-	countdownBall.castShadow = true;
-	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 1;
-	countdownBall.position.x = 1;
-	countdownBall.position.z = 780;
-	scene.add(countdownBall);
+	//starts invisible
+	// let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	// let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	// let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	// countdownBall.castShadow = true;
+	// countdownBall.receiveShadow = true;
+	// countdownBall.position.y = 1;
+	// countdownBall.position.x = 1;
+	// countdownBall.position.z = 780;
+	// countdownBall.name = "countdownBall";
+	// scene.add(countdownBall);
 
 	// 9: creates racecube and adds to scene
-	// let cubeGeometry = new THREE.BoxGeometry(1,1,1);
-	// let cubeMaterial = Physijs.createMaterial(
-	// 	new THREE.MeshLambertMaterial({color: 0xE50009}), // Mario red
-	// 	0.8, // high friction
-	// 	0.3  // medium restitution
-	// );
-	// cube = new Physijs.BoxMesh(
-	// 	cubeGeometry, 
-	// 	cubeMaterial,
-	// 	100  // mass
-	// );
-	// cube.castShadow = true;
-	// cube.receiveShadow = true;
-	// cube.position.y = -0.5;
-	// cube.position.z = 780;
-	// scene.add(cube);
-	// cube.add(perspectiveCamera);
 	let objectLoader = new THREE.ObjectLoader();
 	objectLoader.load("models/mario.json", function(obj){
-
 		cubeObject = obj.children[2];
-		// var cubeMaterial = Physijs.createMaterial(
-	 //    new THREE.MeshBasicMaterial(),
-	 //    0.8, //high friction
-	 //    0.3 //medium restitution
-		// );
-		console.log(cubeObject.geometry);
-		console.log(cubeObject.material);
-
 		cubeGeometry = cubeObject.geometry;
-		cubeMaterial = cubeObject.material;
+		let cubeMaterial = Physijs.createMaterial(
+	    cubeObject.material,
+	    0.8, //high friction
+	    0.3 // medium restitution
+		);
 
 		cube = new Physijs.BoxMesh(
 			cubeGeometry,
 			cubeMaterial,
-			100 	// mass
+			1000 	// mass
 		);
-
-		cube.scale.set(0.05, 0.05, 0.05);
-		
+		cube.scale.set(0.015, 0.015, 0.015);
 		cube.castShadow = true;
 		cube.receiveShadow = true;
-		// cube.position.y = -0.5;
-		cube.position.y = 5;
-		cube.position.x = 0;
+		
+		// set rotation
+		cube.rotation.x = -Math.PI / 2;
+		cube.rotation.z = -135;
+
+		// set position
+		cube.position.y = -0.5;
+		cube.position.x = -Math.PI/2;
 		cube.position.z = 780;
+
+		cube.name = "cube";
+
     scene.add(cube);
-    // cube.add(perspectiveCamera);
+
+    // enables you to see the bounding box for an object
+    let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
+    scene.add(boxHelper);
 	});
 
+	// boxHelper.setFromObject();
+	// boxHelper.update();
+	
 	// enables you to see the light cone from the directional light
 	// let helper = new THREE.CameraHelper(light.shadow.camera);
 	// scene.add(helper); 
@@ -276,8 +276,8 @@ function createScene(){
 	//scene.add(minimapCameraHelper);
 
 	// enables you to visualize the x y and z axes
-	//let axesHelper = new THREE.AxesHelper(100);
-	//scene.add(axesHelper);
+	// let axesHelper = new THREE.AxesHelper(100);
+	// scene.add(axesHelper);
 
 	// enables you to visualize the grid
 	// let size = 1000;
@@ -339,7 +339,8 @@ function render() {
 
 function update() {
 	if (gameOverBoolean !== true) {
-		countdownBall = scene.children[7];
+		countdownBall;
+		// countdownBall = scene.children[7];
 		currentTime = countdownClock.getElapsedTime();
 
 		if (currentTime >= 4 && currentTime < endOfCountdown) {
@@ -350,7 +351,7 @@ function update() {
 
 		//perspectiveCamera.rotation.y += 0.001;
 
-		updateCameraPositionZ();
+		updateCameraPosition();
 		render();
 		scene.simulate();
 	}
@@ -525,14 +526,18 @@ function moveCube(e) {
 	}	
 }
 
-function updateCameraPositionZ() {
+function updateCameraPosition() {
 	// console.log(cube.position.z);
 	if (cube) {
-		perspectiveCamera.position.z = cube.position.z + 10;
-		// console.log(perspectiveCamera.position);
-	}
-	// let lightPosition = cube.position.z + 5;
-	// light.position.set(3, 6, lightPosition); 
+		perspectiveCamera.position.z = cube.position.z + 10; //+ 10
+		perspectiveCamera.position.x = cube.position.x; // + 10; //+ 0
+		perspectiveCamera.position.y = 0; //cube.position.y; 
+
+		// console.log(cube.position.y);
+		// if (cube.position.y === -1) {
+		// 	console.log("they're the same");
+		// }
+	} 
 }
 
 function onWindowResize() {
