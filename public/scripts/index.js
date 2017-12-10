@@ -200,7 +200,19 @@ function createScene(){
 	finishLine.position.z = finishLineDistance;
 	scene.add(finishLine);
 
-	// 8: creates racecube and adds to scene
+	// 8: countdown ball
+	// starts invisible
+	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	countdownBall.castShadow = true;
+	countdownBall.receiveShadow = true;
+	countdownBall.position.y = 1;
+	countdownBall.position.x = 1;
+	countdownBall.position.z = 780;
+	scene.add(countdownBall);
+
+	// 9: creates racecube and adds to scene
 	// let cubeGeometry = new THREE.BoxGeometry(1,1,1);
 	// let cubeMaterial = Physijs.createMaterial(
 	// 	new THREE.MeshLambertMaterial({color: 0xE50009}), // Mario red
@@ -220,45 +232,36 @@ function createScene(){
 	// cube.add(perspectiveCamera);
 	let objectLoader = new THREE.ObjectLoader();
 	objectLoader.load("models/mario.json", function(obj){
-		console.log('hitting the mario json function');
-		cube = obj.children[2];
+
+		cubeObject = obj.children[2];
+		// var cubeMaterial = Physijs.createMaterial(
+	 //    new THREE.MeshBasicMaterial(),
+	 //    0.8, //high friction
+	 //    0.3 //medium restitution
+		// );
+		console.log(cubeObject.geometry);
+		console.log(cubeObject.material);
+
+		cubeGeometry = cubeObject.geometry;
+		cubeMaterial = cubeObject.material;
+
+		cube = new Physijs.BoxMesh(
+			cubeGeometry,
+			cubeMaterial,
+			100 	// mass
+		);
+
+		cube.scale.set(0.05, 0.05, 0.05);
+		
+		cube.castShadow = true;
+		cube.receiveShadow = true;
+		// cube.position.y = -0.5;
+		cube.position.y = 5;
+		cube.position.x = 0;
+		cube.position.z = 780;
     scene.add(cube);
-    console.log(cube);
-    console.log(scene);
+    // cube.add(perspectiveCamera);
 	});
-	// let jsonLoader = new THREE.JSONLoader();
-
-	// jsonLoader.load("models/mario.js", function(car, car_materials){
-	// 	let mesh = new Physijs.BoxMesh(
-	// 		car,
-	// 		new THREE.MeshFaceMaterial(car_materials)
-	// 	);
-	// 	mesh.position.y = 2;
-	// 	mesh.castShadow = mesh.receiveShadow = true;
-
-	// 	cube = new Physijs.Vehicle(mesh, new Physijs.VehicleTuning(
-	// 		10.88,
-	// 		1.83,
-	// 		0.28,
-	// 		500,
-	// 		10.5,
-	// 		6000
-	// 	));
-	// 	scene.add(cube);
-	// 	console.log(scene);
-	// });
-	
-	// 9: countdown ball
-	// starts invisible
-	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
-	countdownBall.castShadow = true;
-	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 1;
-	countdownBall.position.x = 1;
-	countdownBall.position.z = 780;
-	scene.add(countdownBall);
 
 	// enables you to see the light cone from the directional light
 	// let helper = new THREE.CameraHelper(light.shadow.camera);
@@ -336,7 +339,7 @@ function render() {
 
 function update() {
 	if (gameOverBoolean !== true) {
-		countdownBall = scene.children[9];
+		countdownBall = scene.children[7];
 		currentTime = countdownClock.getElapsedTime();
 
 		if (currentTime >= 4 && currentTime < endOfCountdown) {
@@ -524,7 +527,10 @@ function moveCube(e) {
 
 function updateCameraPositionZ() {
 	// console.log(cube.position.z);
-	perspectiveCamera.position.z = cube.position.z + 10;
+	if (cube) {
+		perspectiveCamera.position.z = cube.position.z + 10;
+		// console.log(perspectiveCamera.position);
+	}
 	// let lightPosition = cube.position.z + 5;
 	// light.position.set(3, 6, lightPosition); 
 }
