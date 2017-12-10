@@ -219,9 +219,34 @@ function createScene(){
 	// scene.add(cube);
 	// cube.add(perspectiveCamera);
 	let objectLoader = new THREE.ObjectLoader();
-	objectLoader.load("models/mario.json", function(cube) {
+	objectLoader.load("models/mario.json", function(obj){
+		console.log('hitting the mario json function');
+		cube = obj.children[2];
     scene.add(cube);
+    console.log(cube);
+    console.log(scene);
 	});
+	// let jsonLoader = new THREE.JSONLoader();
+
+	// jsonLoader.load("models/mario.js", function(car, car_materials){
+	// 	let mesh = new Physijs.BoxMesh(
+	// 		car,
+	// 		new THREE.MeshFaceMaterial(car_materials)
+	// 	);
+	// 	mesh.position.y = 2;
+	// 	mesh.castShadow = mesh.receiveShadow = true;
+
+	// 	cube = new Physijs.Vehicle(mesh, new Physijs.VehicleTuning(
+	// 		10.88,
+	// 		1.83,
+	// 		0.28,
+	// 		500,
+	// 		10.5,
+	// 		6000
+	// 	));
+	// 	scene.add(cube);
+	// 	console.log(scene);
+	// });
 	
 	// 9: countdown ball
 	// starts invisible
