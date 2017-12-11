@@ -84,8 +84,8 @@ function createScene(){
     -5000,            					// Near 
     10000												// Far 
   );           					
-	minimapCamera.up = new THREE.Vector3(0,0,-1);
-	minimapCamera.lookAt(new THREE.Vector3(0,-1,0));
+	minimapCamera.up = new THREE.Vector3(0, 0, -1);
+	minimapCamera.lookAt(new THREE.Vector3(0, -1, 0));
 	minimapCamera.name = "minimapCamera";
 	scene.add(minimapCamera);
 
@@ -95,7 +95,7 @@ function createScene(){
   let near = 1;
   let far = 1000; //2000
 	perspectiveCamera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	perspectiveCamera.position.set(0, 0, 790); //x = 0, y = 2 //(0, 0, 100); // x y z
+	perspectiveCamera.position.set(-10, 0, 780); //x = 0, y = 2 //(0, 0, 100); // x y z
 	perspectiveCamera.lookAt(scene.position);
 	perspectiveCamera.name = "perspectiveCamera"; 
 	scene.add(perspectiveCamera);
@@ -107,7 +107,7 @@ function createScene(){
 
 	// 3: sets sunlight with directional lighting effects
 	light = new THREE.DirectionalLight(0xFFFFFF, 0.8); 
-	light.position.set(0,500,5); // x y z
+	light.position.set(0, 500, 5); // x y z
 	light.castShadow = true;
 	light.shadow.mapSize.width = 256;
 	light.shadow.mapSize.height = 256;
@@ -125,7 +125,6 @@ function createScene(){
 	grassTexture.repeat.set(17, 70);
 	let grassMaterial = Physijs.createMaterial(
 		new THREE.MeshBasicMaterial({map: grassTexture}),
-		//new THREE.MeshStandardMaterial({color: 'green'}),
 		1.0, // highest friction
 		0.4  // lowest restitution
 	);
@@ -134,8 +133,8 @@ function createScene(){
 		grassMaterial,
 		0 	// mass
 	);
-	grass.rotation.x = -Math.PI / 2;
-	grass.position.y = -1.1;
+	grass.rotation.x = -Math.PI/2;
+	grass.position.y = -0.75;
 	grass.receiveShadow = true;
 	grass.name = "grass";
 	scene.add(grass);
@@ -149,9 +148,8 @@ function createScene(){
 	racetrackTexture.repeat.set(1, 40);
 	let racetrackMaterial = Physijs.createMaterial(
 		new THREE.MeshBasicMaterial({map: racetrackTexture}),
-		//new THREE.MeshLambertMaterial({color: 0x576259}), //asphalt grey
 		0.8,  // high friction
-		0.4		// low restitution
+		0	// low restitution
 	);
 	let racetrack = new Physijs.BoxMesh(
 		racetrackGeometry, 
@@ -160,8 +158,8 @@ function createScene(){
 	);
 	racetrack.receiveShadow = true;
 	racetrack.castShadow = false;
-	racetrack.rotation.x = -Math.PI / 2;
-	racetrack.position.y = -1;
+	racetrack.rotation.x = -Math.PI/2;
+	racetrack.position.y = -0.5;
 	racetrack.name = "racetrack";
 	scene.add(racetrack);
 
@@ -181,11 +179,13 @@ function createScene(){
 	);
 	startingLine.receiveShadow = true;
 	startingLine.castShadow = false;
-	startingLine.rotation.x = -Math.PI / 2;
-	startingLine.position.y = -0.999;
+	startingLine.rotation.x = -Math.PI/2;
+	startingLine.position.y = -0.45;
 	startingLine.position.z = 775;
 	startingLine.name = "startingLine";
 	scene.add(startingLine);
+
+	perspectiveCamera.lookAt(startingLine.position);
 
 	// 7: creates finishLine plane and adds to scene
 	let finishLineWidth = 11;
@@ -203,24 +203,24 @@ function createScene(){
 	);
 	finishLine.receiveShadow = true;
 	finishLine.castShadow = false;
-	finishLine.rotation.x = -Math.PI / 2;
-	finishLine.position.y = -0.99;
+	finishLine.rotation.x = -Math.PI/2;
+	finishLine.position.y = -0.45;
 	finishLine.position.z = finishLineDistance;
 	finishLine.name = "finishLine";
 	scene.add(finishLine);
 
 	// 8: countdown ball
 	//starts invisible
-	// let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	// let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	// let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
-	// countdownBall.castShadow = true;
-	// countdownBall.receiveShadow = true;
-	// countdownBall.position.y = 1;
-	// countdownBall.position.x = 1;
-	// countdownBall.position.z = 780;
-	// countdownBall.name = "countdownBall";
-	// scene.add(countdownBall);
+	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	countdownBall.castShadow = true;
+	countdownBall.receiveShadow = true;
+	countdownBall.position.y = 1;
+	countdownBall.position.x = 1;
+	countdownBall.position.z = 780;
+	countdownBall.name = "countdownBall";
+	scene.add(countdownBall);
 
 	// 9: creates racecube and adds to scene
 	let objectLoader = new THREE.ObjectLoader();
@@ -230,7 +230,7 @@ function createScene(){
 		let cubeMaterial = Physijs.createMaterial(
 	    cubeObject.material,
 	    0.8, //high friction
-	    0.3 // medium restitution
+	    0 // medium restitution
 		);
 
 		cube = new Physijs.BoxMesh(
@@ -243,25 +243,42 @@ function createScene(){
 		cube.receiveShadow = true;
 		
 		// set rotation
-		cube.rotation.x = -Math.PI / 2;
+		cube.rotation.x = -Math.PI/2;
 		cube.rotation.z = -135;
 
 		// set position
+		// cube.position.y = -0.51;
 		cube.position.y = -0.5;
 		cube.position.x = -Math.PI/2;
 		cube.position.z = 780;
 
-		cube.name = "cube";
+		// cube.setAngularVelocity(new THREE.Vector3(-135, -Math.PI/2, 0));
 
+		cube.name = "cube";
+		
     scene.add(cube);
+
+    cube.addEventListener('collision', function(other_object, relative_velocity, relative_rotation, contact_normal){
+			// `this` has collided with `other_object` with an impact speed of `relative_velocity` 
+			// and a rotational force of `relative_rotation` and at normal `contact_normal`
+			// console.log(other_object);
+			// console.log(relative_velocity);
+			// console.log(relative_rotation);
+			// console.log(contact_normal);
+		});
+
+	// 	cube.addEventListener("ready", function(){
+	//     cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
+	// });
 
     // enables you to see the bounding box for an object
     let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
     scene.add(boxHelper);
 	});
-
-	// boxHelper.setFromObject();
-	// boxHelper.update();
+	
+	//plane helper
+	//let planeHelper = new THREE.PlaneHelper(racetrack.geometry.boundingBox.max, 1, 0x000000); //black
+	//scene.add(planeHelper);
 	
 	// enables you to see the light cone from the directional light
 	// let helper = new THREE.CameraHelper(light.shadow.camera);
@@ -280,7 +297,7 @@ function createScene(){
 	// scene.add(axesHelper);
 
 	// enables you to visualize the grid
-	// let size = 1000;
+	// let size = 2000;
 	// let divisions = 100;
 	// let gridHelper = new THREE.GridHelper(size, divisions);
 	// gridHelper.position.y = -1.0;
@@ -297,18 +314,6 @@ function createScene(){
 	renderer.setSize(sceneWidth, sceneHeight);
 	renderer.setClearColor(0x000000, 1);
 	renderer.autoClear = false;
-}
-
-function addModelToScene( geometry, materials ) 
-{
-	var cubeMaterial = new THREE.MeshFaceMaterial( materials );
-	cube = new THREE.Mesh( geometry, material );
-	cube.scale.set(10,10,10);
-	cube.castShadow = true;
-	cube.receiveShadow = true;
-	cube.position.y = -0.5;
-	cube.position.z = 780;
-	scene.add(cube);
 }
 
 function animate() {
@@ -339,8 +344,7 @@ function render() {
 
 function update() {
 	if (gameOverBoolean !== true) {
-		countdownBall;
-		// countdownBall = scene.children[7];
+		countdownBall = scene.children[8];
 		currentTime = countdownClock.getElapsedTime();
 
 		if (currentTime >= 4 && currentTime < endOfCountdown) {
@@ -348,8 +352,6 @@ function update() {
 		} else if (currentTime >= endOfCountdown) {
 			checkWinner();
 		}
-
-		//perspectiveCamera.rotation.y += 0.001;
 
 		updateCameraPosition();
 		render();
@@ -360,9 +362,11 @@ function update() {
 function startCountdownClock(countdownBall, currentTime) {
 	
 	if (currentTime >= 4 && currentTime < endOfCountdown) {
-		// wait for 4 seconds after game loads to make countdown ball appear
+		// wait for 4 seconds after game loads to make countdown ball appear as a black ball
 		countdownBall.material.color.setHex(0x000000);
 		countdownBall.material.opacity = 0.75; 
+
+		// console.log(countdownBall);
 
 		if (currentTime >= 8 && currentTime < 9.25) {
 			//stoplight starts at red
@@ -496,15 +500,9 @@ function stopTimer() {
 	raceClock.stop();
 }
 
-//let moveCube = function(e) {
 function moveCube(e) {
-	//console.log(e);
 	if (gameOverBoolean !== true) {
 		cube = scene.children[8];
-		// console.log("scene child");
-		// console.log(scene.children[8]);
-		// console.log("cube");
-		// console.log(cube);
 
 		switch(e.keyCode) {
 			case 37: //left
@@ -516,10 +514,11 @@ function moveCube(e) {
 				cube.applyCentralImpulse(vectorForce);
 				break;
 			case 38: //forward
-				// console.log(e);
-				// console.log(cube);
-				//console.log(Math.round(cube.position.z));
 				vectorForce = new THREE.Vector3(0,0,-5);
+				cube.applyCentralImpulse(vectorForce);
+				break;
+			case 40: //back
+				vectorForce = new THREE.Vector3(0,10,0);
 				cube.applyCentralImpulse(vectorForce);
 				break;
 		}
@@ -527,16 +526,14 @@ function moveCube(e) {
 }
 
 function updateCameraPosition() {
-	// console.log(cube.position.z);
 	if (cube) {
-		perspectiveCamera.position.z = cube.position.z + 10; //+ 10
-		perspectiveCamera.position.x = cube.position.x; // + 10; //+ 0
-		perspectiveCamera.position.y = 0; //cube.position.y; 
+		perspectiveCamera.position.z = cube.position.z; // + 10; // + 10; 
+		perspectiveCamera.position.x = -10; //cube.position.x; 
+		perspectiveCamera.position.y = 0;//1; 
+		perspectiveCamera.lookAt(cube.position);
 
-		// console.log(cube.position.y);
-		// if (cube.position.y === -1) {
-		// 	console.log("they're the same");
-		// }
+		cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
+		// cube.__dirtyRotation = true;
 	} 
 }
 
