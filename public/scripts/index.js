@@ -95,7 +95,7 @@ function createScene(){
   let near = 1;
   let far = 1000; //2000
 	perspectiveCamera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	perspectiveCamera.position.set(-10, 0, 780); //x = 0, y = 2 //(0, 0, 100); // x y z
+	perspectiveCamera.position.set(0, 1, 790); //x = 0, y = 1, z = 780
 	perspectiveCamera.lookAt(scene.position);
 	perspectiveCamera.name = "perspectiveCamera"; 
 	scene.add(perspectiveCamera);
@@ -149,7 +149,7 @@ function createScene(){
 	let racetrackMaterial = Physijs.createMaterial(
 		new THREE.MeshBasicMaterial({map: racetrackTexture}),
 		0.8,  // high friction
-		0	// low restitution
+		0.3	// low restitution
 	);
 	let racetrack = new Physijs.BoxMesh(
 		racetrackGeometry, 
@@ -209,28 +209,15 @@ function createScene(){
 	finishLine.name = "finishLine";
 	scene.add(finishLine);
 
-	// 8: countdown ball
-	//starts invisible
-	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
-	countdownBall.castShadow = true;
-	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 1;
-	countdownBall.position.x = 1;
-	countdownBall.position.z = 780;
-	countdownBall.name = "countdownBall";
-	scene.add(countdownBall);
-
 	// 9: creates racecube and adds to scene
 	let objectLoader = new THREE.ObjectLoader();
-	objectLoader.load("models/mario.json", function(obj){
+	objectLoader.load("models/mario-sculpture.json", function(obj){
 		cubeObject = obj.children[2];
 		cubeGeometry = cubeObject.geometry;
 		let cubeMaterial = Physijs.createMaterial(
 	    cubeObject.material,
 	    0.8, //high friction
-	    0 // medium restitution
+	    0.3 // medium restitution
 		);
 
 		cube = new Physijs.BoxMesh(
@@ -243,16 +230,14 @@ function createScene(){
 		cube.receiveShadow = true;
 		
 		// set rotation
-		cube.rotation.x = -Math.PI/2;
+		cube.rotation.x = -1.5;//-1.57;
 		cube.rotation.z = -135;
 
 		// set position
 		// cube.position.y = -0.51;
-		cube.position.y = -0.5;
+		cube.position.y = -0.3;
 		cube.position.x = -Math.PI/2;
 		cube.position.z = 780;
-
-		// cube.setAngularVelocity(new THREE.Vector3(-135, -Math.PI/2, 0));
 
 		cube.name = "cube";
 		
@@ -267,14 +252,27 @@ function createScene(){
 			// console.log(contact_normal);
 		});
 
-	// 	cube.addEventListener("ready", function(){
-	//     cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
-	// });
+		// cube.addEventListener("ready", function(){
+			
+		// });
 
     // enables you to see the bounding box for an object
     let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
     scene.add(boxHelper);
 	});
+
+	// 8: countdown ball
+	//starts invisible
+	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	countdownBall.castShadow = true;
+	countdownBall.receiveShadow = true;
+	countdownBall.position.y = 1;
+	countdownBall.position.x = 1;
+	countdownBall.position.z = 780;
+	countdownBall.name = "countdownBall";
+	scene.add(countdownBall);
 	
 	//plane helper
 	//let planeHelper = new THREE.PlaneHelper(racetrack.geometry.boundingBox.max, 1, 0x000000); //black
@@ -300,7 +298,7 @@ function createScene(){
 	// let size = 2000;
 	// let divisions = 100;
 	// let gridHelper = new THREE.GridHelper(size, divisions);
-	// gridHelper.position.y = -1.0;
+	// gridHelper.position.y = 0;
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
@@ -347,6 +345,10 @@ function update() {
 		countdownBall = scene.children[8];
 		currentTime = countdownClock.getElapsedTime();
 
+		if (cube && currentTime >= 0 && currentTime < endOfCountdown) {
+			cube.setLinearFactor(new THREE.Vector3(0, 0, 0));
+		} 
+
 		if (currentTime >= 4 && currentTime < endOfCountdown) {
 			startCountdownClock(countdownBall, currentTime);
 		} else if (currentTime >= endOfCountdown) {
@@ -384,6 +386,9 @@ function startCountdownClock(countdownBall, currentTime) {
 			
 			// after the countdown timer ends, start the race timer
 			startTimer();
+
+			// let the mario have velocity again
+			cube.setLinearFactor(new THREE.Vector3(0.5, 1.9, 1)); 
 
 			// change the music so that it plays the race sounds
 			audioPlayer.src = "audio/race_music_1.mp3";
@@ -517,23 +522,23 @@ function moveCube(e) {
 				vectorForce = new THREE.Vector3(0,0,-5);
 				cube.applyCentralImpulse(vectorForce);
 				break;
-			case 40: //back
-				vectorForce = new THREE.Vector3(0,10,0);
-				cube.applyCentralImpulse(vectorForce);
-				break;
+			// HOW TO JUMP
+			// case 40: //back
+			// 	vectorForce = new THREE.Vector3(0,10,0);
+			// 	cube.applyCentralImpulse(vectorForce);
+			// 	break;
 		}
 	}	
 }
 
 function updateCameraPosition() {
 	if (cube) {
-		perspectiveCamera.position.z = cube.position.z; // + 10; // + 10; 
-		perspectiveCamera.position.x = -10; //cube.position.x; 
-		perspectiveCamera.position.y = 0;//1; 
+		perspectiveCamera.position.z = cube.position.z + 10; 
+		perspectiveCamera.position.x = cube.position.x;  //-10; 
+		perspectiveCamera.position.y = 1; //0; 
 		perspectiveCamera.lookAt(cube.position);
 
 		cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
-		// cube.__dirtyRotation = true;
 	} 
 }
 
