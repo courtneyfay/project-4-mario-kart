@@ -42,7 +42,6 @@ input[type=submit] {
 
 .modal {
 	display: none;
-	/*height: 25%;*/
 	padding-top: 10%;
 	position: absolute;
 	text-align: center;
@@ -53,6 +52,10 @@ input[type=submit] {
 
 .modal-content {
 	padding: 5%;
+}
+
+.high-scores {
+	background-color: black;
 }
 
 #timer {
@@ -97,10 +100,6 @@ input[type=submit] {
 	top: 30%;
 	width: 50%;
 	z-index: 1;
-}
-
-.high-scores {
-	background-color: black;
 }
 
 .animate {

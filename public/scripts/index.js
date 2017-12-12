@@ -422,22 +422,35 @@ function gameOver() {
 	stopTimer();
 	stopGame();
 	showNameModal();
-  //saveScore();
   //getHighScores();
 }
 
 function showNameModal() {
+	// open modal
 	let modal = document.getElementById('game-over-modal');
 	modal.style.display = 'block';
-	// document.querySelector("input").focus();
-	// console.log(document.activeElement.tagName);
+
+	// add event listener to form submit
+	let form = document.getElementById('username-form');
+	form.addEventListener("submit", getUsername);
+}
+
+function getUsername() {
+	event.preventDefault();
+
+	//grab value of input field and send to saveScore() function
+	let username = document.getElementById('game-over-input').value;
+	saveScore(username);
+
+	//close modal
+	let modal = document.getElementById('game-over-modal');
+	modal.style.display = 'none';
 }
 
 function stopGame() {
 	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
   cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
   let onAnimationFrame = null;
-  //document.removeEventListener('keydown', handler.bind(this), false);
   let arrows = document.getElementById("arrows");
   arrows.parentNode.removeChild(arrows);
 }
@@ -449,7 +462,7 @@ function getHighScores() {
 	});
 }
 
-function saveScore() {
+function saveScore(username) {
 	/*
 	Points system:
 	10 seconds - 50 points
@@ -463,9 +476,12 @@ function saveScore() {
 	let finalScore = 60 - (Math.round(finalTime) * 1);
 
 	let finalData = {
+		name: username,
 		time: finalTime,
 		score: finalScore
 	};
+
+	console.log(finalData);
 
 	$.getScript('/scripts/ajax.js', function() {
 		createScore(finalData);

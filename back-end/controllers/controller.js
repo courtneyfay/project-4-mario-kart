@@ -60,7 +60,7 @@ createScore = (req, res) => {
 	scores.push(newScore);*/
 
 	Scores.create({
-		name: "Court",
+		name: req.body.name,
 		time: req.body.time,
 		score: req.body.score 
 	})
