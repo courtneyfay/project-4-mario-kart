@@ -1,5 +1,8 @@
 body { 
-	margin: 0; 
+	color: white;
+	font-family: sans-serif;
+	font-size: 30px;
+	margin: 0;
 }
 
 canvas { 
@@ -7,16 +10,59 @@ canvas {
 	height: 99% 
 }
 
-#timer {
-	color: white;
-	display: inline;
+label {
+	display: block;
+}
+
+input {
 	font-size: 30px;
+	text-align: center;
+}
+
+input[type=text], select {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: inline-block;
+  margin: 8px 0;
+  padding: 12px 20px;
+  width: 100%;
+}
+
+input[type=submit] {
+  background-color: red;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  padding: 14px 20px;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.modal {
+	display: none;
+	/*height: 25%;*/
+	padding-top: 10%;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 100%;
+	z-index: 2;
+}
+
+.modal-content {
+	padding: 5%;
+}
+
+#timer {
+	display: inline;
 	margin: 0 auto;
 	position: absolute;
 	text-align: center;
 	top: 2%;
 	width: 99%;
-	z-index: 100;
+	z-index: 1;
 }
 
 #arrows {
@@ -25,7 +71,7 @@ canvas {
 	right: 2%;
 	margin: 0 auto;
 	position: absolute;
-	z-index: 100;
+	z-index: 1;
 }
 
 #game-over {
@@ -37,7 +83,7 @@ canvas {
 	text-align: center;
 	top: 10%;
 	width: 99%;
-	z-index: 100;
+	z-index: 1;
 }
 
 #game-scores {
@@ -50,11 +96,26 @@ canvas {
 	text-align: center;
 	top: 30%;
 	width: 50%;
-	z-index: 100;
+	z-index: 1;
 }
 
 .high-scores {
 	background-color: black;
+}
+
+.animate {
+  -webkit-animation: animatezoom 0.6s;
+  animation: animatezoom 0.6s;
+}
+
+@-webkit-keyframes animatezoom {
+	from { -webkit-transform: scale(0); } 
+	to { -webkit-transform: scale(1); }
+}
+
+@keyframes animatezoon {
+	from { transform: scale(0); }
+	to { transform: scale(1); }
 }
 
 /*p {

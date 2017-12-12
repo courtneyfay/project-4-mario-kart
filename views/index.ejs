@@ -21,16 +21,21 @@
 	<div id="game-elements">
 		<div id="timer"></div>
 		<img id="arrows" src="images/keys.png" alt="image of arrow keys">
+
 		<!-- hidden until the game ends -->
+		<div id="game-over-modal" class="modal">
+			<form method="POST" action="" class="modal-content animate">
+				<input class="game-over-input" type="text" placeholder="Enter your name" name="username" autofocus>
+				<input type="submit" value="Save Score">
+			</form>
+		</div>
 		<div id="game-over"></div>
 		<div id="game-scores"></div>
 	</div>
 
 	<!-- Mario Kart audio elements -->
 	<audio autoplay="autoplay">
-		<source src="audio/intro_music.mp3" type-"audio/mpeg"> 
-		Your browser does not support the audio player
-	</audio>
+		<source src="audio/intro_music.mp3" type-"audio/mpeg"></audio>
 	
 	<!-- SCRIPTS AFTER THE PAGE LOADS -->
 	<script src="scripts/controls/three.js"></script>

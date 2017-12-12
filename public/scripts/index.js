@@ -95,7 +95,7 @@ function createScene(){
   let near = 1;
   let far = 1000; //2000
 	perspectiveCamera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	perspectiveCamera.position.set(0, 1, 790); //x = 0, y = 1, z = 780
+	perspectiveCamera.position.set(-1, 3, 790); //x = 0, y = 1, z = 780
 	perspectiveCamera.lookAt(scene.position);
 	perspectiveCamera.name = "perspectiveCamera"; 
 	scene.add(perspectiveCamera);
@@ -235,9 +235,9 @@ function createScene(){
 
 		// set position
 		// cube.position.y = -0.51;
-		cube.position.y = -0.3;
+		cube.position.y = 0.5;
 		cube.position.x = -Math.PI/2;
-		cube.position.z = 780;
+		cube.position.z = 785;
 
 		cube.name = "cube";
 		
@@ -257,8 +257,8 @@ function createScene(){
 		// });
 
     // enables you to see the bounding box for an object
-    let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
-    scene.add(boxHelper);
+    //let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
+    //scene.add(boxHelper);
 	});
 
 	// 8: countdown ball
@@ -268,7 +268,7 @@ function createScene(){
 	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
 	countdownBall.castShadow = true;
 	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 1;
+	countdownBall.position.y = 2;
 	countdownBall.position.x = 1;
 	countdownBall.position.z = 780;
 	countdownBall.name = "countdownBall";
@@ -345,9 +345,9 @@ function update() {
 		countdownBall = scene.children[8];
 		currentTime = countdownClock.getElapsedTime();
 
-		if (cube && currentTime >= 0 && currentTime < endOfCountdown) {
-			cube.setLinearFactor(new THREE.Vector3(0, 0, 0));
-		} 
+		//if (cube && currentTime >= 0 && currentTime < endOfCountdown) {
+			//cube.setLinearFactor(new THREE.Vector3(0, 0, 0));
+		//} 
 
 		if (currentTime >= 4 && currentTime < endOfCountdown) {
 			startCountdownClock(countdownBall, currentTime);
@@ -388,7 +388,7 @@ function startCountdownClock(countdownBall, currentTime) {
 			startTimer();
 
 			// let the mario have velocity again
-			cube.setLinearFactor(new THREE.Vector3(0.5, 1.9, 1)); 
+			//cube.setLinearFactor(new THREE.Vector3(0.5, 1.9, 1)); 
 
 			// change the music so that it plays the race sounds
 			audioPlayer.src = "audio/race_music_1.mp3";
@@ -421,8 +421,16 @@ function gameOver() {
 
 	stopTimer();
 	stopGame();
-  saveScore();
-  getHighScores();
+	showNameModal();
+  //saveScore();
+  //getHighScores();
+}
+
+function showNameModal() {
+	let modal = document.getElementById('game-over-modal');
+	modal.style.display = 'block';
+	// document.querySelector("input").focus();
+	// console.log(document.activeElement.tagName);
 }
 
 function stopGame() {
@@ -534,8 +542,8 @@ function moveCube(e) {
 function updateCameraPosition() {
 	if (cube) {
 		perspectiveCamera.position.z = cube.position.z + 10; 
-		perspectiveCamera.position.x = cube.position.x;  //-10; 
-		perspectiveCamera.position.y = 1; //0; 
+		perspectiveCamera.position.x = cube.position.x + 1;  //-10; 
+		perspectiveCamera.position.y = 3; //0; 
 		perspectiveCamera.lookAt(cube.position);
 
 		cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
