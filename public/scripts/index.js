@@ -8,7 +8,7 @@ let perspectiveCamera;
 let scene;
 let renderer;
 let orbitControls;
-let cube;
+let cube, cubeTwo;
 let countdownBall;
 let countdownClock;
 let finishLineDistance = -250;
@@ -34,9 +34,6 @@ audioPlayer.play();
 
 function createScene(){
 
-	// remove scores from div
-	// document.getElementById('game-scores').textContent = "";
-
 	// sets the renderer
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	sceneWidth = window.innerWidth - shrinkScreenSize;
@@ -48,7 +45,7 @@ function createScene(){
 	dom.appendChild(renderer.domElement);
 
 	// sets the scene
-	scene = new Physijs.Scene(); //{ fixedTimeStep: 1 / 120 }
+	scene = new Physijs.Scene(); 
 	scene.setGravity(new THREE.Vector3(0, -30, 0));
 	scene.addEventListener(
 		'update',
@@ -95,7 +92,7 @@ function createScene(){
   let near = 1;
   let far = 1000; //2000
 	perspectiveCamera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	perspectiveCamera.position.set(-1, 3, 790); //x = 0, y = 1, z = 780
+	perspectiveCamera.position.set(-1.57, 3, 790); //x = 0, y = 1, z = 780
 	perspectiveCamera.lookAt(scene.position);
 	perspectiveCamera.name = "perspectiveCamera"; 
 	scene.add(perspectiveCamera);
@@ -185,8 +182,6 @@ function createScene(){
 	startingLine.name = "startingLine";
 	scene.add(startingLine);
 
-	perspectiveCamera.lookAt(startingLine.position);
-
 	// 7: creates finishLine plane and adds to scene
 	let finishLineWidth = 11;
 	let finishLineHeight = 3;
@@ -209,7 +204,39 @@ function createScene(){
 	finishLine.name = "finishLine";
 	scene.add(finishLine);
 
-	// 9: creates racecube and adds to scene
+	// 8: countdown ball
+	//starts invisible
+	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	countdownBall.castShadow = true;
+	countdownBall.receiveShadow = true;
+	countdownBall.position.y = 2;
+	countdownBall.position.x = 1;
+	countdownBall.position.z = 780;
+	countdownBall.name = "countdownBall";
+	scene.add(countdownBall);
+
+	// 9: create green racecube and adds to scene
+	/*let cubeTwoGeometry = new THREE.BoxGeometry(1, 1, 1);
+	let cubeTwoMaterial = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({color: 0x00ff00}), // green
+		0.8,  // high friction
+		0.4		// medium restitution
+	);
+	let cubeTwo = new Physijs.BoxMesh(
+		cubeTwoGeometry, 
+		cubeTwoMaterial,
+		1000  // mass
+	);
+	cubeTwo.castShadow = cubeTwo.receiveShadow = true;
+	cubeTwo.position.x = -2;
+	cubeTwo.position.y = 0.5;
+	cubeTwo.position.z = 785;
+	cubeTwo.name = "luigi";
+	scene.add(cubeTwo);*/
+
+	// 10: creates Mario and adds to scene
 	let objectLoader = new THREE.ObjectLoader();
 	objectLoader.load("models/mario-sculpture.json", function(obj){
 		cubeObject = obj.children[2];
@@ -236,7 +263,7 @@ function createScene(){
 		// set position
 		// cube.position.y = -0.51;
 		cube.position.y = 0.5;
-		cube.position.x = -Math.PI/2;
+		cube.position.x = 2;
 		cube.position.z = 785;
 
 		cube.name = "cube";
@@ -260,19 +287,6 @@ function createScene(){
     //let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
     //scene.add(boxHelper);
 	});
-
-	// 8: countdown ball
-	//starts invisible
-	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
-	countdownBall.castShadow = true;
-	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 2;
-	countdownBall.position.x = 1;
-	countdownBall.position.z = 780;
-	countdownBall.name = "countdownBall";
-	scene.add(countdownBall);
 	
 	//plane helper
 	//let planeHelper = new THREE.PlaneHelper(racetrack.geometry.boundingBox.max, 1, 0x000000); //black
@@ -344,10 +358,6 @@ function update() {
 	if (gameOverBoolean !== true) {
 		countdownBall = scene.children[8];
 		currentTime = countdownClock.getElapsedTime();
-
-		//if (cube && currentTime >= 0 && currentTime < endOfCountdown) {
-			//cube.setLinearFactor(new THREE.Vector3(0, 0, 0));
-		//} 
 
 		if (currentTime >= 4 && currentTime < endOfCountdown) {
 			startCountdownClock(countdownBall, currentTime);
@@ -431,6 +441,8 @@ function stopTimer() {
 function stopGame() {
 	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
   cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
+  cubeTwo.setLinearVelocity(new THREE.Vector3(0, 0, 0));
+  cubeTwo.setAngularVelocity(new THREE.Vector3(0, 0, 0));
   let onAnimationFrame = null;
   let arrows = document.getElementById("arrows");
   arrows.parentNode.removeChild(arrows);
@@ -532,9 +544,11 @@ function updateTimer() {
 
 function moveCube(e) {
 	if (gameOverBoolean !== true) {
-		cube = scene.children[8];
+		cube = scene.children[8]; //will be 9 with second racecube
+		// cubeTwo = scene.children[8];
 
 		switch(e.keyCode) {
+			//Mario's keys
 			case 37: //left
 				vectorForce = new THREE.Vector3(-5,0,0);
 				cube.applyCentralImpulse(vectorForce);
@@ -552,6 +566,20 @@ function moveCube(e) {
 			// 	vectorForce = new THREE.Vector3(0,10,0);
 			// 	cube.applyCentralImpulse(vectorForce);
 			// 	break;
+
+			//Luigi's keys
+			/*case 65: //A -- left (65)
+				vectorForce = new THREE.Vector3(-5,0,0);
+				cubeTwo.applyCentralImpulse(vectorForce);
+				break;
+			case 68: //D -- right (68)
+				vectorForce = new THREE.Vector3(5,0,0);
+				cubeTwo.applyCentralImpulse(vectorForce);
+				break;
+			case 87: //W -- forward (87)
+				vectorForce = new THREE.Vector3(0,0,-5);
+				cubeTwo.applyCentralImpulse(vectorForce);
+				break;*/
 		}
 	}	
 }
@@ -559,7 +587,7 @@ function moveCube(e) {
 function updateCameraPosition() {
 	if (cube) {
 		perspectiveCamera.position.z = cube.position.z + 10; 
-		perspectiveCamera.position.x = cube.position.x + 1;  //-10; 
+		perspectiveCamera.position.x = -1.57;  //-10; 
 		perspectiveCamera.position.y = 3; //0; 
 		perspectiveCamera.lookAt(cube.position);
 
