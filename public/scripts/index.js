@@ -422,7 +422,18 @@ function gameOver() {
 	stopTimer();
 	stopGame();
 	showNameModal();
-  //getHighScores();
+}
+
+function stopTimer() {
+	raceClock.stop();
+}
+
+function stopGame() {
+	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
+  cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
+  let onAnimationFrame = null;
+  let arrows = document.getElementById("arrows");
+  arrows.parentNode.removeChild(arrows);
 }
 
 function showNameModal() {
@@ -447,14 +458,6 @@ function getUsername() {
 	modal.style.display = 'none';
 }
 
-function stopGame() {
-	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
-  cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
-  let onAnimationFrame = null;
-  let arrows = document.getElementById("arrows");
-  arrows.parentNode.removeChild(arrows);
-}
-
 function getHighScores() {
 	gameoverHTML.textContent = "GAME OVER!";
 	$.getScript('/scripts/ajax.js', function() {
@@ -471,7 +474,7 @@ function saveScore(username) {
 	40 seconds - 20 points
 	50 seconds - 10 points
 	*/
-	let finalTime = raceClock.getElapsedTime();
+	let finalTime = Math.round(raceClock.getElapsedTime() * 100) / 100;
 
 	let finalScore = 60 - (Math.round(finalTime) * 1);
 
@@ -486,6 +489,8 @@ function saveScore(username) {
 	$.getScript('/scripts/ajax.js', function() {
 		createScore(finalData);
 	});
+
+	getHighScores();
 }
 
 function handler(e) {
@@ -523,10 +528,6 @@ function updateTimer() {
 	}
 
 	timerHTML.textContent = "TIME " + updatedTime;
-}
-
-function stopTimer() {
-	raceClock.stop();
 }
 
 function moveCube(e) {
