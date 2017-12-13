@@ -58,13 +58,54 @@ input[type=submit] {
 	background-color: black;
 }
 
+.map-select-button {
+	background-color: black;
+	color: yellow;
+	font-size: 30px;
+}
+
+.map-select-button:hover {
+	color: #00DB30;
+}
+
+.map-select-image {
+	display: block;
+	margin: 3% auto;
+	text-align: center;
+	width: 50%;
+}
+
+#map-select-modal {
+	background-color: lavender;
+	height: 87%;
+}
+
+#map-select-modal-title {
+	background-color: black;
+	color: yellow;
+	font-size: 50px;
+	margin: 3%;
+}
+
+#map-select-left {
+	float: left;
+	margin: 3%;
+	width: 40%;
+}
+
+#map-select-right {
+	float: right;
+	margin: 3%;
+	width: 40%;
+}
+
 #timer {
 	display: inline;
 	margin: 0 auto;
 	position: absolute;
 	text-align: center;
 	top: 2%;
-	width: 99%;
+	width: 100%;
 	z-index: 1;
 }
 
@@ -116,7 +157,3 @@ input[type=submit] {
 	from { transform: scale(0); }
 	to { transform: scale(1); }
 }
-
-/*p {
-	display: inline;
-}*/

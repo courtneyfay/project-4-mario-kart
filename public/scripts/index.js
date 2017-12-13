@@ -25,14 +25,111 @@ let gameOverBoolean = false;
 let audioPlayer = document.getElementsByTagName('audio')[0];
 let endOfCountdown = 11.775;
 
-// sets up the scene, camera, renderer and 3D objects
-createScene();
-// calls game loop/animations
-animate();
-// adds audio
-audioPlayer.play();
+selectMap();
+
+//shows the map-select page
+function selectMap(){
+	// open map-select modal
+	let modal = document.getElementById('map-select-modal');
+	modal.style.display = 'block';
+
+	// add "map select" title to map-select modal
+	mapSelect = document.createElement('div');
+	mapSelect.textContent = "MAP SELECT";
+	mapSelect.setAttribute("id", "map-select-modal-title");
+	modal.appendChild(mapSelect);
+
+	// TODO add this data to a new table in the database and pull it from there
+	mapArray = [ 
+	{
+		direction: 'map-select-left',
+		text: 'LUIGI RACEWAY',
+		element: 'luigi-raceway',
+		src: '/images/luigi-raceway.jpg'
+	},
+	{
+		direction: 'map-select-right',
+		text: 'RAINBOW ROAD',
+		element: 'rainbow-road',
+		src: '/images/rainbow-road.jpg'
+	} 
+	];
+
+	// TODO turn this into a loop to add new maps to the page
+	// add luigi raceway option button to map-select modal
+	// luigiRaceway = document.createElement('div');
+	// luigiRaceway.setAttribute("id", "map-select-left");
+	// luigiRacewayButton = document.createElement('button');
+	// luigiRacewayButton.textContent = "LUIGI RACEWAY";
+	// luigiRacewayButton.setAttribute("class", "map-select-button");
+	// luigiRacewayButton.setAttribute("id", "luigi-raceway");
+	// luigiRacewayButton.addEventListener("click", setUpMap); 
+	// luigiRaceway.appendChild(luigiRacewayButton);
+	// luigiRacewayImage = document.createElement('img');
+	// luigiRacewayImage.setAttribute("src", "/images/luigi-raceway.jpg");
+	// luigiRacewayImage.setAttribute("class", "map-select-image");
+	// luigiRaceway.appendChild(luigiRacewayImage);
+	// modal.appendChild(luigiRaceway);
+
+	for (let i = 0; i < mapArray.length; i++) {
+		// create new map div
+		mapDiv = document.createElement('div');
+		mapDiv.setAttribute("id", mapArray[i].direction); 
+		mapDiv.setAttribute("class", "animate");
+		
+		// create new map button
+		mapButton = document.createElement("button");
+		mapButton.textContent = mapArray[i].text;
+		mapButton.setAttribute("class", "map-select-button");
+		mapButton.setAttribute("id", mapArray[i].element);
+		mapButton.addEventListener("click", setUpMap);
+		
+		// create new map image
+		mapImage = document.createElement("img");
+		mapImage.setAttribute("src", mapArray[i].src);
+		mapImage.setAttribute("class", "map-select-image");
+
+		// append button and image to div and then to modal
+		mapDiv.appendChild(mapButton);
+		mapDiv.appendChild(mapImage);
+		modal.appendChild(mapDiv);
+	}	
+}
+
+function setUpMap(event) {
+	let map = event.target.id;
+
+	//play map selection sound
+	audioPlayer.src = "audio/map_button_click.mp3";
+	audioPlayer.load();
+	audioPlayer.play();
+
+	// hide map-select modal
+	let modal = document.getElementById('map-select-modal');
+	modal.style.display = 'none';
+	
+	if (map === 'luigi-raceway') {
+		console.log(map);
+		startGame();
+	} else if (map === 'rainbow-road') {
+		console.log(map);
+		startGame();
+	}
+}
+
+function startGame(){
+	// sets up the scene, camera, renderer and 3D objects
+	createScene();
+	// calls game loop/animations
+	animate();
+}
 
 function createScene(){
+
+	//play intro_music  sound
+	audioPlayer.src = "audio/intro_music.mp3";
+	audioPlayer.load();
+	audioPlayer.play();
 
 	// sets the renderer
 	renderer = new THREE.WebGLRenderer({antialias: true});
