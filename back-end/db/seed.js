@@ -23,11 +23,18 @@ let scores = [
 	}
 ];
 
+let scoresDelete = function() {
+	return DB.Scores.destroy({
+		where: {}
+	});
+};
+
 let scoresCreate = function() {
 	return DB.Scores.bulkCreate(scores);
 };
 
-scoresCreate()
+scoresDelete()
+.then(scoresCreate)
 .then(function() {
 	process.exit();
 });
