@@ -24,6 +24,8 @@ let gameoverHTML = document.getElementById("game-over");
 let gameOverBoolean = false;
 let audioPlayer = document.getElementsByTagName('audio')[0];
 let endOfCountdown = 11.775;
+let map;
+let racetrackImage;
 
 selectMap();
 
@@ -55,22 +57,6 @@ function selectMap(){
 	} 
 	];
 
-	// TODO turn this into a loop to add new maps to the page
-	// add luigi raceway option button to map-select modal
-	// luigiRaceway = document.createElement('div');
-	// luigiRaceway.setAttribute("id", "map-select-left");
-	// luigiRacewayButton = document.createElement('button');
-	// luigiRacewayButton.textContent = "LUIGI RACEWAY";
-	// luigiRacewayButton.setAttribute("class", "map-select-button");
-	// luigiRacewayButton.setAttribute("id", "luigi-raceway");
-	// luigiRacewayButton.addEventListener("click", setUpMap); 
-	// luigiRaceway.appendChild(luigiRacewayButton);
-	// luigiRacewayImage = document.createElement('img');
-	// luigiRacewayImage.setAttribute("src", "/images/luigi-raceway.jpg");
-	// luigiRacewayImage.setAttribute("class", "map-select-image");
-	// luigiRaceway.appendChild(luigiRacewayImage);
-	// modal.appendChild(luigiRaceway);
-
 	for (let i = 0; i < mapArray.length; i++) {
 		// create new map div
 		mapDiv = document.createElement('div');
@@ -97,22 +83,20 @@ function selectMap(){
 }
 
 function setUpMap(event) {
-	let map = event.target.id;
-
-	//play map selection sound
-	audioPlayer.src = "audio/map_button_click.mp3";
-	audioPlayer.load();
-	audioPlayer.play();
+	map = event.target.id;
 
 	// hide map-select modal
 	let modal = document.getElementById('map-select-modal');
 	modal.style.display = 'none';
+
+	//play intro_music  sound
+	audioPlayer.src = "audio/intro_music.mp3";
+	audioPlayer.load();
+	audioPlayer.play();
 	
 	if (map === 'luigi-raceway') {
-		console.log(map);
 		startGame();
 	} else if (map === 'rainbow-road') {
-		console.log(map);
 		startGame();
 	}
 }
@@ -125,11 +109,6 @@ function startGame(){
 }
 
 function createScene(){
-
-	//play intro_music  sound
-	audioPlayer.src = "audio/intro_music.mp3";
-	audioPlayer.load();
-	audioPlayer.play();
 
 	// sets the renderer
 	renderer = new THREE.WebGLRenderer({antialias: true});
@@ -152,19 +131,24 @@ function createScene(){
 	);
 
 	// adds skybox to the scene
-	let path = "images/skybox/";
-	let format = ".png";
-	let urls = [
-		path + 'sky-xpos' + format, 
-		path + 'sky-xneg' + format, 
-		path + 'sky-ypos' + format, 
-		path + 'sky-yneg' + format, 
-		path + 'sky-zpos' + format, 
-		path + 'sky-zneg' + format
-	];
-	skyBoxTexture = new THREE.CubeTextureLoader().load(urls);
-	skyBoxTexture.minFilter = THREE.LinearFilter;
-	scene.background = skyBoxTexture;
+	// TODO if map = luigi's raceway, use skybox else if map = rainbow road, use nightskybox
+	if (map === 'luigi-raceway') {
+		let path = "images/skybox/";
+		let format = ".png";
+		let urls = [
+			path + 'sky-xpos' + format, 
+			path + 'sky-xneg' + format, 
+			path + 'sky-ypos' + format, 
+			path + 'sky-yneg' + format, 
+			path + 'sky-zpos' + format, 
+			path + 'sky-zneg' + format
+		];
+		skyBoxTexture = new THREE.CubeTextureLoader().load(urls);
+		skyBoxTexture.minFilter = THREE.LinearFilter;
+		scene.background = skyBoxTexture;
+	} else if (map === 'rainbow-road') {
+		//scene.background = new THREE.Color(0x000000);
+	}
 
 	// sets up a game clock to start the countdown
 	countdownClock = new THREE.Clock();
@@ -189,7 +173,7 @@ function createScene(){
   let near = 1;
   let far = 1000; //2000
 	perspectiveCamera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	perspectiveCamera.position.set(-1.57, 3, 790); //x = 0, y = 1, z = 780
+	perspectiveCamera.position.set(-1.5, 4, 790); //x = 0, y = 1, z = 780
 	perspectiveCamera.lookAt(scene.position);
 	perspectiveCamera.name = "perspectiveCamera"; 
 	scene.add(perspectiveCamera);
@@ -210,34 +194,57 @@ function createScene(){
 	light.name = "light"; 
 	scene.add(light);
 
-	// 4: creates green grass color and adds to scene
-	let grassWidth = 100;
-	let grassLength = 1600;
-	let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
-	let grassTexture = new THREE.TextureLoader().load('images/grass.jpg');
-	grassTexture.wrapT = grassTexture.wrapS = THREE.RepeatWrapping;
-	grassTexture.repeat.set(17, 70);
-	let grassMaterial = Physijs.createMaterial(
-		new THREE.MeshBasicMaterial({map: grassTexture}),
-		1.0, // highest friction
-		0.4  // lowest restitution
-	);
-	let grass = new Physijs.BoxMesh(
-		grassGeometry, 
-		grassMaterial,
-		0 	// mass
-	);
-	grass.rotation.x = -Math.PI/2;
-	grass.position.y = -0.75;
-	grass.receiveShadow = true;
-	grass.name = "grass";
-	scene.add(grass);
+	// 4: countdown ball
+	//starts invisible
+	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
+	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
+	countdownBall.castShadow = true;
+	countdownBall.receiveShadow = true;
+	countdownBall.position.y = 2;
+	countdownBall.position.x = 1;
+	countdownBall.position.z = 780;
+	countdownBall.name = "countdownBall";
+	scene.add(countdownBall);
 
-	// 5: creates grey racetrack color and adds to scene
+	// 5: creates green grass color and adds to scene
+	// TODO if map = LR, add grass, else if map = RR, don't add grass
+	if (map === 'luigi-raceway') {
+		let grassWidth = 100;
+		let grassLength = 1600;
+		let grassGeometry = new THREE.PlaneGeometry(grassWidth, grassLength);
+		let grassTexture = new THREE.TextureLoader().load('images/grass.jpg');
+		grassTexture.wrapT = grassTexture.wrapS = THREE.RepeatWrapping;
+		grassTexture.repeat.set(17, 70);
+		let grassMaterial = Physijs.createMaterial(
+			new THREE.MeshBasicMaterial({map: grassTexture}),
+			1.0, // highest friction
+			0.4  // lowest restitution
+		);
+		let grass = new Physijs.BoxMesh(
+			grassGeometry, 
+			grassMaterial,
+			0 	// mass
+		);
+		grass.rotation.x = -Math.PI/2;
+		grass.position.y = -0.75;
+		grass.receiveShadow = true;
+		grass.name = "grass";
+		scene.add(grass);
+	} 
+
+	// 6: creates grey racetrack color and adds to scene
+	// TODO if map = LR, add road.jpg, else if map = RR, add rainbow pattern
+	if (map === 'luigi-raceway') {
+		racetrackImage = 'images/road.jpg';
+	} else if (map === 'rainbow-road') {
+		racetrackImage = 'images/rainbow.jpg';
+	}
+
 	let racetrackWidth = 11;
 	let racetrackHeight = 1600;
 	let racetrackGeometry = new THREE.PlaneGeometry(racetrackWidth, racetrackHeight);
-	let racetrackTexture = new THREE.TextureLoader().load('images/road.jpg');
+	let racetrackTexture = new THREE.TextureLoader().load(racetrackImage);
 	racetrackTexture.wrapT = racetrackTexture.wrapS = THREE.RepeatWrapping;
 	racetrackTexture.repeat.set(1, 40);
 	let racetrackMaterial = Physijs.createMaterial(
@@ -257,7 +264,7 @@ function createScene(){
 	racetrack.name = "racetrack";
 	scene.add(racetrack);
 
-	// 6: creates startingLine plane and adds to scene
+	// 7: creates startingLine plane and adds to scene
 	let startingLineWidth = 11;
 	let startingLineHeight = 3;
 	let startingLineGeometry = new THREE.PlaneGeometry(startingLineWidth, startingLineHeight);
@@ -279,7 +286,7 @@ function createScene(){
 	startingLine.name = "startingLine";
 	scene.add(startingLine);
 
-	// 7: creates finishLine plane and adds to scene
+	// 8: creates finishLine plane and adds to scene
 	let finishLineWidth = 11;
 	let finishLineHeight = 3;
 	let finishLineGeometry = new THREE.PlaneGeometry(finishLineWidth, finishLineHeight);
@@ -301,19 +308,6 @@ function createScene(){
 	finishLine.name = "finishLine";
 	scene.add(finishLine);
 
-	// 8: countdown ball
-	//starts invisible
-	let ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-	let ballMaterial = new THREE.MeshLambertMaterial({color: 0xffffff, transparent: true, opacity: 0}); 
-	let countdownBall = new THREE.Mesh(ballGeometry, ballMaterial);
-	countdownBall.castShadow = true;
-	countdownBall.receiveShadow = true;
-	countdownBall.position.y = 2;
-	countdownBall.position.x = 1;
-	countdownBall.position.z = 780;
-	countdownBall.name = "countdownBall";
-	scene.add(countdownBall);
-
 	// 9: create green racecube and adds to scene
 	/*let cubeTwoGeometry = new THREE.BoxGeometry(1, 1, 1);
 	let cubeTwoMaterial = Physijs.createMaterial(
@@ -333,7 +327,7 @@ function createScene(){
 	cubeTwo.name = "luigi";
 	scene.add(cubeTwo);*/
 
-	// 10: creates Mario and adds to scene
+	// 9: creates Mario and adds to scene
 	let objectLoader = new THREE.ObjectLoader();
 	objectLoader.load("models/mario-sculpture.json", function(obj){
 		cubeObject = obj.children[2];
@@ -360,25 +354,21 @@ function createScene(){
 		// set position
 		// cube.position.y = -0.51;
 		cube.position.y = 0.5;
-		cube.position.x = 2;
+		cube.position.x = -1.5;
 		cube.position.z = 785;
 
 		cube.name = "cube";
 		
     scene.add(cube);
 
-    cube.addEventListener('collision', function(other_object, relative_velocity, relative_rotation, contact_normal){
+    //cube.addEventListener('collision', function(other_object, relative_velocity, relative_rotation, contact_normal){
 			// `this` has collided with `other_object` with an impact speed of `relative_velocity` 
 			// and a rotational force of `relative_rotation` and at normal `contact_normal`
 			// console.log(other_object);
 			// console.log(relative_velocity);
 			// console.log(relative_rotation);
 			// console.log(contact_normal);
-		});
-
-		// cube.addEventListener("ready", function(){
-			
-		// });
+		//});
 
     // enables you to see the bounding box for an object
     //let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
@@ -413,8 +403,8 @@ function createScene(){
 	// scene.add(gridHelper);
 
 	// add these back in after you add orbit controls (helper to rotate around in scene)
-	orbitControls = new THREE.OrbitControls(perspectiveCamera); //renderer.domElement
-	orbitControls.enableZoom = true;
+	//orbitControls = new THREE.OrbitControls(perspectiveCamera); //renderer.domElement
+	//orbitControls.enableZoom = true;
 
 	// event listeners
 	window.addEventListener('resize', onWindowResize, false);
@@ -453,7 +443,7 @@ function render() {
 
 function update() {
 	if (gameOverBoolean !== true) {
-		countdownBall = scene.children[8];
+		countdownBall = scene.children[4];
 		currentTime = countdownClock.getElapsedTime();
 
 		if (currentTime >= 4 && currentTime < endOfCountdown) {
@@ -538,8 +528,8 @@ function stopTimer() {
 function stopGame() {
 	cube.setLinearVelocity(new THREE.Vector3(0, 0, 0));
   cube.setAngularVelocity(new THREE.Vector3(0, 0, 0));
-  cubeTwo.setLinearVelocity(new THREE.Vector3(0, 0, 0));
-  cubeTwo.setAngularVelocity(new THREE.Vector3(0, 0, 0));
+  //cubeTwo.setLinearVelocity(new THREE.Vector3(0, 0, 0));
+  //cubeTwo.setAngularVelocity(new THREE.Vector3(0, 0, 0));
   let onAnimationFrame = null;
   let arrows = document.getElementById("arrows");
   arrows.parentNode.removeChild(arrows);
@@ -641,7 +631,12 @@ function updateTimer() {
 
 function moveCube(e) {
 	if (gameOverBoolean !== true) {
-		cube = scene.children[8]; //will be 9 with second racecube
+
+		if (map === 'luigi-raceway') {
+			cube = scene.children[8];
+		} else if (map === 'rainbow-road') {
+			cube = scene.children[7];
+		} 
 		// cubeTwo = scene.children[8];
 
 		switch(e.keyCode) {
@@ -684,9 +679,9 @@ function moveCube(e) {
 function updateCameraPosition() {
 	if (cube) {
 		perspectiveCamera.position.z = cube.position.z + 10; 
-		perspectiveCamera.position.x = -1.57;  //-10; 
-		perspectiveCamera.position.y = 3; //0; 
-		perspectiveCamera.lookAt(cube.position);
+		perspectiveCamera.position.x = -1.5; 
+		perspectiveCamera.position.y = 4; //0; 
+		// perspectiveCamera.lookAt(cube.position);
 
 		cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
 	} 
