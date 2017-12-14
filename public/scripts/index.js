@@ -26,6 +26,7 @@ let audioPlayer = document.getElementsByTagName('audio')[0];
 let endOfCountdown = 11.775;
 let map;
 let racetrackImage;
+let wonBoolean;
 
 selectMap();
 
@@ -332,7 +333,7 @@ function createScene(){
 		cube = new Physijs.BoxMesh(
 			cubeGeometry,
 			cubeMaterial,
-			1000 	// mass
+			500 	// mass
 		);
 		cube.scale.set(0.015, 0.015, 0.015);
 		cube.castShadow = true;
@@ -432,8 +433,7 @@ function animate() {
 }
 
 function render() {
-
-	if (gameOverBoolean !== true) {
+	if (gameOverBoolean === false) {
 
 		let sceneWidth = window.innerWidth;
 		let sceneHeight = window.innerHeight;
@@ -452,7 +452,7 @@ function render() {
 }
 
 function update() {
-	if (gameOverBoolean !== true) {
+	if (gameOverBoolean === false) {
 		countdownBall = scene.children[4];
 		currentTime = countdownClock.getElapsedTime();
 
@@ -507,38 +507,63 @@ function startCountdownClock(countdownBall, currentTime) {
 }
 
 function checkWinner() {
-	if (cube.position.z <= finishLineDistance && cube.position.y >= 0 && 
-		cube.position.x >= -5 && cube.position.x <= 5) {
-		gameOver();
-	} else if (cube.position.y <= -100) {
-		stopTimer();
-		stopGame();
-		stopMusic();
-		getGameOverScreen();
+	if (gameOverBoolean === false) {
+		if (cube.position.z <= finishLineDistance && cube.position.z <= finishLineDistance - 5 &&
+			cube.position.y >= 0 && 
+			cube.position.x >= -5.5 && cube.position.x <= 5.5) {
+			gameOver(true);
+		} else if (cube.position.y <= -10) {
+			gameOver(false);
+			
 		} else {
-		
-		// update the time on the race clock	
-		updateTimer();
-		// after the countdown timer ends, you can start to move with the arrow keys
-		document.addEventListener('keydown', handler.bind(this), false);
+			// update the time on the race clock	
+			updateTimer();
+			// after the countdown timer ends, you can start to move with the arrow keys
+			document.addEventListener('keydown', handler.bind(this), false);
+		}
 	}
 }
 
-function gameOver() {
+function gameOver(boolean) {
+	wonBoolean = boolean;
 	gameOverBoolean = true;
 	
-	stopMusic();
+	gameOverMusic();
 	stopTimer();
 	stopGame();
-	showNameModal();
+
+	if (wonBoolean === true) {
+		showNameModal();
+	} else {
+		//if they didn't win
+		getGameOverScreen();
+	}
 }
 
-function stopMusic() {
+function gameOverMusic() {
 	// change the music so that it plays the game-over sounds
 	audioPlayer.src = "audio/end_of_race.mp3";
 	audioPlayer.loop = false;
 	audioPlayer.load();
 	audioPlayer.play();
+
+	audioPlayer.addEventListener("ended", newGame);
+}
+
+function newGame() {
+	let button = document.createElement("button");
+	button.textContent = "Try Again?";
+	button.style.display = "block";
+	button.style.margin = "0 auto";
+	button.className = "map-select-button animate";
+	button.addEventListener("click", refreshPage);
+
+	let gameOver = document.getElementById("game-over");
+	gameOver.appendChild(button);
+}
+
+function refreshPage() {
+	location.reload();
 }
 
 function stopTimer() {
@@ -654,7 +679,7 @@ function updateTimer() {
 }
 
 function moveCube(e) {
-	if (gameOverBoolean !== true) {
+	if (gameOverBoolean === false) {
 
 		if (map === 'luigi-raceway') {
 			cube = scene.children[8];
@@ -705,7 +730,9 @@ function updateCameraPosition() {
 		perspectiveCamera.position.z = cube.position.z + 10; 
 		perspectiveCamera.position.x = -1.5; 
 		perspectiveCamera.position.y = 4; //0; 
-		perspectiveCamera.lookAt(cube.position);
+		if (map === 'rainbow-road') {
+			perspectiveCamera.lookAt(cube.position);
+		}
 
 		cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
 	} 

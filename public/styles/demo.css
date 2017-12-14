@@ -75,6 +75,10 @@ input[type=submit] {
 	width: 50%;
 }
 
+#new-game-button {
+	display: none;
+}
+
 #map-select-modal {
 	background-color: lavender;
 	height: 87%;
@@ -127,7 +131,7 @@ input[type=submit] {
 	text-align: center;
 	top: 10%;
 	width: 99%;
-	z-index: 1;
+	z-index: 2;
 }
 
 #game-scores {
