@@ -131,7 +131,6 @@ function createScene(){
 	);
 
 	// adds skybox to the scene
-	// TODO if map = luigi's raceway, use skybox else if map = rainbow road, use nightskybox
 	if (map === 'luigi-raceway') {
 		let path = "images/skybox/";
 		let format = ".png";
@@ -147,7 +146,20 @@ function createScene(){
 		skyBoxTexture.minFilter = THREE.LinearFilter;
 		scene.background = skyBoxTexture;
 	} else if (map === 'rainbow-road') {
-		//scene.background = new THREE.Color(0x000000);
+		let path = "images/starskybox/";
+		let format = ".png";
+		let prefix = 'star';
+		let urls = [
+			path + prefix + '-xpos' + format, 
+			path + prefix + '-xneg' + format, 
+			path + prefix + '-ypos' + format, 
+			path + prefix + '-yneg' + format, 
+			path + prefix + '-zpos' + format, 
+			path + prefix + '-zneg' + format
+		];
+		skyBoxTexture = new THREE.CubeTextureLoader().load(urls);
+		skyBoxTexture.minFilter = THREE.LinearFilter;
+		scene.background = skyBoxTexture;
 	}
 
 	// sets up a game clock to start the countdown
@@ -208,7 +220,6 @@ function createScene(){
 	scene.add(countdownBall);
 
 	// 5: creates green grass color and adds to scene
-	// TODO if map = LR, add grass, else if map = RR, don't add grass
 	if (map === 'luigi-raceway') {
 		let grassWidth = 100;
 		let grassLength = 1600;
@@ -234,7 +245,6 @@ function createScene(){
 	} 
 
 	// 6: creates grey racetrack color and adds to scene
-	// TODO if map = LR, add road.jpg, else if map = RR, add rainbow pattern
 	if (map === 'luigi-raceway') {
 		racetrackImage = 'images/road.jpg';
 	} else if (map === 'rainbow-road') {
@@ -308,25 +318,6 @@ function createScene(){
 	finishLine.name = "finishLine";
 	scene.add(finishLine);
 
-	// 9: create green racecube and adds to scene
-	/*let cubeTwoGeometry = new THREE.BoxGeometry(1, 1, 1);
-	let cubeTwoMaterial = Physijs.createMaterial(
-		new THREE.MeshLambertMaterial({color: 0x00ff00}), // green
-		0.8,  // high friction
-		0.4		// medium restitution
-	);
-	let cubeTwo = new Physijs.BoxMesh(
-		cubeTwoGeometry, 
-		cubeTwoMaterial,
-		1000  // mass
-	);
-	cubeTwo.castShadow = cubeTwo.receiveShadow = true;
-	cubeTwo.position.x = -2;
-	cubeTwo.position.y = 0.5;
-	cubeTwo.position.z = 785;
-	cubeTwo.name = "luigi";
-	scene.add(cubeTwo);*/
-
 	// 9: creates Mario and adds to scene
 	let objectLoader = new THREE.ObjectLoader();
 	objectLoader.load("models/mario-sculpture.json", function(obj){
@@ -374,6 +365,25 @@ function createScene(){
     //let boxHelper = new THREE.BoxHelper(cube, 0x000000); //black
     //scene.add(boxHelper);
 	});
+
+	// 10: create green racecube and adds to scene
+	/*let cubeTwoGeometry = new THREE.BoxGeometry(1, 1, 1);
+	let cubeTwoMaterial = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({color: 0x00ff00}), // green
+		0.8,  // high friction
+		0.4		// medium restitution
+	);
+	let cubeTwo = new Physijs.BoxMesh(
+		cubeTwoGeometry, 
+		cubeTwoMaterial,
+		1000  // mass
+	);
+	cubeTwo.castShadow = cubeTwo.receiveShadow = true;
+	cubeTwo.position.x = -2;
+	cubeTwo.position.y = 0.5;
+	cubeTwo.position.z = 785;
+	cubeTwo.name = "luigi";
+	scene.add(cubeTwo);*/
 	
 	//plane helper
 	//let planeHelper = new THREE.PlaneHelper(racetrack.geometry.boundingBox.max, 1, 0x000000); //black
@@ -497,11 +507,17 @@ function startCountdownClock(countdownBall, currentTime) {
 }
 
 function checkWinner() {
-	if (cube.position.z <= finishLineDistance) {
-		// console.log("you made it to the finish line!");
+	if (cube.position.z <= finishLineDistance && cube.position.y >= 0 && 
+		cube.position.x >= -5 && cube.position.x <= 5) {
 		gameOver();
-	} else {
-		// update the time on the race clock
+	} else if (cube.position.y <= -100) {
+		stopTimer();
+		stopGame();
+		stopMusic();
+		getGameOverScreen();
+		} else {
+		
+		// update the time on the race clock	
 		updateTimer();
 		// after the countdown timer ends, you can start to move with the arrow keys
 		document.addEventListener('keydown', handler.bind(this), false);
@@ -510,15 +526,19 @@ function checkWinner() {
 
 function gameOver() {
 	gameOverBoolean = true;
+	
+	stopMusic();
+	stopTimer();
+	stopGame();
+	showNameModal();
+}
+
+function stopMusic() {
 	// change the music so that it plays the game-over sounds
 	audioPlayer.src = "audio/end_of_race.mp3";
 	audioPlayer.loop = false;
 	audioPlayer.load();
 	audioPlayer.play();
-
-	stopTimer();
-	stopGame();
-	showNameModal();
 }
 
 function stopTimer() {
@@ -558,10 +578,13 @@ function getUsername() {
 }
 
 function getHighScores() {
-	gameoverHTML.textContent = "GAME OVER!";
 	$.getScript('/scripts/ajax.js', function() {
 		indexScores();
 	});
+}
+
+function getGameOverScreen() {
+	gameoverHTML.textContent = "GAME OVER!";
 }
 
 function saveScore(username) {
@@ -589,6 +612,7 @@ function saveScore(username) {
 		createScore(finalData);
 	});
 
+	getGameOverScreen();
 	getHighScores();
 }
 
@@ -681,7 +705,7 @@ function updateCameraPosition() {
 		perspectiveCamera.position.z = cube.position.z + 10; 
 		perspectiveCamera.position.x = -1.5; 
 		perspectiveCamera.position.y = 4; //0; 
-		// perspectiveCamera.lookAt(cube.position);
+		perspectiveCamera.lookAt(cube.position);
 
 		cube.setAngularFactor(new THREE.Vector3(0, 0, 0));
 	} 
